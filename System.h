@@ -1,12 +1,10 @@
 #include "Includes.h"
 #include "Utilities.h"
 
-class System
+struct System
 {
-public:
-	class ProjectSettings
+	struct ProjectSettings
 	{
-	public:
 		static std::string title;
 		static std::string description;
 		static std::string version;
@@ -14,9 +12,8 @@ public:
 		static Color background;
 	};
 
-	class WindowSettings
+	struct WindowSettings
 	{
-	public:
 		static std::string title;
 		static unsigned int width;
 		static unsigned int height;
@@ -25,15 +22,13 @@ public:
 		static SDL_Renderer* renderer;
 	};
 
-	class InputSettings
+	struct InputSettings
 	{
-	public:
 		static SDL_Event _event;
 	};
 
-	class Engine
+	struct Engine
 	{
-	public:
 		static bool is_running;
 		
 		static void start();
