@@ -10,9 +10,9 @@ void Display::renderPresent() { SDL_RenderPresent(System::WindowSettings::render
 
 void Display::init(std::string windowTitle, unsigned int windowWidth, unsigned int windowHeight)
 {
-	System::ProjectSettings::title = windowTitle;
 
 	if (System::WindowSettings::title == "") System::WindowSettings::title = System::ProjectSettings::title;
+	if (System::ProjectSettings::title == "") System::ProjectSettings::title = System::WindowSettings::title;
 
 	System::WindowSettings::width = windowWidth;
 	System::WindowSettings::height = windowHeight;
