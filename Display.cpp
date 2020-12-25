@@ -8,9 +8,9 @@ void Display::renderClear()
 
 void Display::renderPresent() { SDL_RenderPresent(System::WindowSettings::renderer); }
 
-void Display::init(std::string title, unsigned int windowWidth, unsigned int windowHeight)
+void Display::init(std::string windowTitle, unsigned int windowWidth, unsigned int windowHeight)
 {
-	System::ProjectSettings::title = title;
+	System::ProjectSettings::title = windowTitle;
 
 	if (System::WindowSettings::title == "") System::WindowSettings::title = System::ProjectSettings::title;
 
@@ -18,7 +18,7 @@ void Display::init(std::string title, unsigned int windowWidth, unsigned int win
 	System::WindowSettings::height = windowHeight;
 
 	System::WindowSettings::window = SDL_CreateWindow(
-		title.c_str(),
+		windowTitle.c_str(),
 		NULL,
 		NULL,
 		windowWidth,
