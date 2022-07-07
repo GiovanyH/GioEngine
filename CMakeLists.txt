@@ -1,11 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
-project(GioEngine VERSION 1.0.0)
+project(GioEngine VERSION 1.1.0)
 
-configure_file(Core/Config.h.in ../Core/Config.h)
-
-add_executable(GioEngine Core/main.cpp)
-
-target_include_directories(GioEngine PUBLIC
-	"${PROJECT_BINARY_DIR}"
-	)
+add_subdirectory("libs")
