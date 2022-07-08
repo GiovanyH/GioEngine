@@ -9,7 +9,8 @@
 #include "imgui_impl_opengl3.h"
 #include <fstream>
 #include <streambuf>
-#include "../Editor/ImGuiColorTextEdit/TextEditor.h"
+#include "TextEditor.h"
+#include "Version.h"
 #include <stdio.h>
 #include <string>
 #include <SDL.h>
@@ -18,48 +19,6 @@
 #else
 #include <SDL_opengl.h>
 #endif
-
-static void SimpleOverlay(bool *p_open)
-{
-	static int corner = 0;
-	ImGuiIO& io = ImGui::GetIO();
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | 
-		ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-	if (corner != -1) {
-		const float PAD = 10.0f;
-		const ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-		ImVec2 work_size = viewport->WorkSize;
-		ImVec2 window_pos, window_pos_pivot;
-		window_pos.x = (corner & 1) ? (work_pos.x + work_size.x - PAD) : (work_pos.x + PAD);
-		window_pos.y = (corner & 2) ? (work_pos.y + work_size.y - PAD) : (work_pos.y + PAD);
-		window_pos_pivot.x = (corner & 1) ? 1.0f : 0.0f;
-		window_pos_pivot.y = (corner & 2) ? 1.0f : 0.0f;
-		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-		window_flags |= ImGuiWindowFlags_NoMove;
-	}
-	ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-	if (ImGui::Begin("Example: Simple overlay", p_open, window_flags)) {
-		std::string major, minor, patch;
-		major = std::to_string(GioEngine_VERSION_MAJOR);
-		minor = std::to_string(GioEngine_VERSION_MINOR);
-		patch = std::to_string(GioEngine_VERSION_PATCH);
-		ImGui::Text(("VERSION: " + major + '.' + minor + '.' + patch).c_str());
-		ImGui::Separator();
-		if (ImGui::BeginPopupContextWindow()) {
-		    if (ImGui::MenuItem("Custom",       NULL, corner == -1)) corner = -1;
-		    if (ImGui::MenuItem("Top-left",     NULL, corner == 0)) corner = 0;
-		    if (ImGui::MenuItem("Top-right",    NULL, corner == 1)) corner = 1;
-		    if (ImGui::MenuItem("Bottom-left",  NULL, corner == 2)) corner = 2;
-		    if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
-		    if (p_open && ImGui::MenuItem("Close")) *p_open = false;
-		    ImGui::EndPopup();
-		}
-	}
-	ImGui::End();
-}
-
-
 
 int main(int argc, char** argv) {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
@@ -156,22 +115,13 @@ int main(int argc, char** argv) {
 		lang.mIdentifiers.insert(std::make_pair(std::string(identifiers[i]), id));
 	}
 	editor.SetLanguageDefinition(lang);
-	//editor.SetPalette(TextEditor::GetLightPalette());
 
-	// error markers
 	TextEditor::ErrorMarkers markers;
 	markers.insert(std::make_pair<int, std::string>(6, "Example error here:\nInclude file not found: \"TextEditor.h\""));
 	markers.insert(std::make_pair<int, std::string>(41, "Another example error"));
 	editor.SetErrorMarkers(markers);
 
-	// "breakpoint" markers
-	//TextEditor::Breakpoints bpts;
-	//bpts.insert(24);
-	//bpts.insert(47);
-	//editor.SetBreakpoints(bpts);
-
 	static const char* fileToEdit = "ImGuiColorTextEdit/TextEditor.angel";
-//	static const char* fileToEdit = "test.cpp";
 
 	{
 		std::ifstream t(fileToEdit);
@@ -197,9 +147,7 @@ int main(int argc, char** argv) {
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-		bool gay = true;
-
-		SimpleOverlay(&gay);
+		SimpleOverlay();
 
 		auto cpos = editor.GetCursorPosition();
 
