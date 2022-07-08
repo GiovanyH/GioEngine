@@ -8,6 +8,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+#include <string>
 #include <SDL.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
@@ -15,8 +16,49 @@
 #include <SDL_opengl.h>
 #endif
 
+static void SimpleOverlay(bool *p_open)
+{
+	static int corner = 0;
+	ImGuiIO& io = ImGui::GetIO();
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | 
+		ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+	if (corner != -1) {
+		const float PAD = 10.0f;
+		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+		ImVec2 work_size = viewport->WorkSize;
+		ImVec2 window_pos, window_pos_pivot;
+		window_pos.x = (corner & 1) ? (work_pos.x + work_size.x - PAD) : (work_pos.x + PAD);
+		window_pos.y = (corner & 2) ? (work_pos.y + work_size.y - PAD) : (work_pos.y + PAD);
+		window_pos_pivot.x = (corner & 1) ? 1.0f : 0.0f;
+		window_pos_pivot.y = (corner & 2) ? 1.0f : 0.0f;
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+		window_flags |= ImGuiWindowFlags_NoMove;
+	}
+	ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+	if (ImGui::Begin("Example: Simple overlay", p_open, window_flags)) {
+		std::string major, minor, patch;
+		major = std::to_string(GioEngine_VERSION_MAJOR);
+		minor = std::to_string(GioEngine_VERSION_MINOR);
+		patch = std::to_string(GioEngine_VERSION_PATCH);
+		ImGui::Text(("VERSION: " + major + '.' + minor + '.' + patch).c_str());
+		ImGui::Separator();
+		if (ImGui::BeginPopupContextWindow()) {
+		    if (ImGui::MenuItem("Custom",       NULL, corner == -1)) corner = -1;
+		    if (ImGui::MenuItem("Top-left",     NULL, corner == 0)) corner = 0;
+		    if (ImGui::MenuItem("Top-right",    NULL, corner == 1)) corner = 1;
+		    if (ImGui::MenuItem("Bottom-left",  NULL, corner == 2)) corner = 2;
+		    if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+		    if (p_open && ImGui::MenuItem("Close")) *p_open = false;
+		    ImGui::EndPopup();
+		}
+	}
+	ImGui::End();
+}
+
+
+
 int main(int argc, char** argv) {
-	printf("teste, %d.%d.%d\n", GioEngine_VERSION_MAJOR, GioEngine_VERSION_MINOR, GioEngine_VERSION_PATCH);
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
 		printf("Error: %s\n", SDL_GetError());
 		return -1;
@@ -60,8 +102,6 @@ int main(int argc, char** argv) {
 	ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-	bool show_demo_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	bool done = false;
@@ -79,38 +119,9 @@ int main(int argc, char** argv) {
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-		if (show_demo_window)
-		    ImGui::ShowDemoWindow(&show_demo_window);
+		bool gay = true;
 
-		{
-		    static float f = 0.0f;
-		    static int counter = 0;
-
-		    ImGui::Begin("Hello, world!");
-		    ImGui::Text("This is some useful text.");
-		    ImGui::Checkbox("Demo Window", &show_demo_window);
-		    ImGui::Checkbox("Another Window", &show_another_window);
-
-		    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		    ImGui::ColorEdit3("clear color", (float*)&clear_color);
-
-		    if (ImGui::Button("Button"))
-			counter++;
-		    ImGui::SameLine();
-		    ImGui::Text("counter = %d", counter);
-
-		    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		    ImGui::End();
-		}
-
-		if (show_another_window)
-		{
-		    ImGui::Begin("Another Window", &show_another_window);
-		    ImGui::Text("Hello from another window!");
-		    if (ImGui::Button("Close Me"))
-			show_another_window = false;
-		    ImGui::End();
-		}
+		SimpleOverlay(&gay);
 
 		ImGui::Render();
 		glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
