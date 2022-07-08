@@ -30,6 +30,8 @@ target_sources( IMGUI
                 )
 
 target_include_directories( IMGUI
+			    PUBLIC ${PROJECT_DIR}
+			    PUBLIC ${PROJECT_DIR}/Core
                             PUBLIC ${IMGUI_DIR}
                             PUBLIC ${IMGUI_DIR}/backends
                             PUBLIC ${SDL2_DIR}/include
@@ -53,12 +55,7 @@ endif()
 
 target_link_libraries(IMGUI PUBLIC SDL2main SDL2 ${CMAKE_DL_LIBS})
 
-
-#=================== EXAMPLE ===================
-
-if(BUILD_EXAMPLES)
-    add_executable(example_sdl_opengl3)
-    target_sources(example_sdl_opengl3 PUBLIC ${IMGUI_DIR}/examples/example_sdl_opengl3/main.cpp)
-    target_link_libraries(example_sdl_opengl3 IMGUI)
-    set_target_properties(example_sdl_opengl3 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-endif()
+add_executable(GioEngine)
+target_sources(GioEngine PUBLIC ${PROJECT_DIR}/Core/main.cpp)
+target_link_libraries(GioEngine PUBLIC IMGUI)
+set_target_properties(GioEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
