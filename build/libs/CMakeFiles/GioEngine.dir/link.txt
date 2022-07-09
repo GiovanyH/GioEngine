@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/GioEngine.dir/__/Core/main.cpp.o -o ../GioEngine  -Wl,-rpath,/home/giovany/Development/GioEngine/build/libs/SDL libIMGUI.a libEDITOR.a libIMGUI.a /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libGLU.so SDL/libSDL2main.a SDL/libSDL2-2.0.so.0.2301.0 -ldl 

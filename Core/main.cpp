@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	// TEXT EDITOR SAMPLE
 	TextEditor editor;
-	auto lang = TextEditor::LanguageDefinition::AngelScript();
+	auto lang = TextEditor::LanguageDefinition::Rust();
 
 	// set your own known preprocessor symbols...
 	static const char* ppnames[] = { "NULL", "PM_REMOVE",
@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
 	markers.insert(std::make_pair<int, std::string>(41, "Another example error"));
 	editor.SetErrorMarkers(markers);
 
-	static const char* fileToEdit = "ImGuiColorTextEdit/TextEditor.angel";
+	static const char* fileToEdit = "ImGuiColorTextEdit/TextEditor.rs";
 
 	{
 		std::ifstream t(fileToEdit);
@@ -197,12 +197,7 @@ int main(int argc, char** argv) {
 
 			if (ImGui::BeginMenu("View"))
 			{
-				if (ImGui::MenuItem("Dark palette"))
-					editor.SetPalette(TextEditor::GetDarkPalette());
-				if (ImGui::MenuItem("Light palette"))
-					editor.SetPalette(TextEditor::GetLightPalette());
-				if (ImGui::MenuItem("Retro blue palette"))
-					editor.SetPalette(TextEditor::GetRetroBluePalette());
+				editor.SetPalette(TextEditor::GetDarkPalette());
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
@@ -211,7 +206,7 @@ int main(int argc, char** argv) {
 		ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 			editor.IsOverwrite() ? "Ovr" : "Ins",
 			editor.CanUndo() ? "*" : " ",
-			editor.GetLanguageDefinition().mName.c_str(), fileToEdit);
+			editor.GetCurrentMode(), fileToEdit);
 
 		editor.Render("TextEditor");
 

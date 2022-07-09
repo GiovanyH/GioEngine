@@ -1,2 +1,0 @@
-/usr/bin/ar qc libEDITOR.a CMakeFiles/EDITOR.dir/__/Editor/ImGuiColorTextEdit/TextEditor.cpp.o CMakeFiles/EDITOR.dir/__/Editor/Version.cpp.o
-/usr/bin/ranlib libEDITOR.a

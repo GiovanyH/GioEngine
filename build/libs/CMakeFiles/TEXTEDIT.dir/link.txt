@@ -1,2 +1,0 @@
-/usr/bin/ar qc libTEXTEDIT.a CMakeFiles/TEXTEDIT.dir/__/Editor/ImGuiColorTextEdit/TextEditor.cpp.o
-/usr/bin/ranlib libTEXTEDIT.a
