@@ -29,7 +29,7 @@ TextEditor::TextEditor()
 	, mOverwrite(false)
 	, mReadOnly(false)
 	, mWithinRender(false)
-	, mScrollToCursor(false)
+	, mScrollToCursor(true)
 	, mScrollToTop(false)
 	, mTextChanged(false)
 	, mColorizerEnabled(true)
@@ -42,7 +42,6 @@ TextEditor::TextEditor()
 	, mCheckComments(true)
 	, mLastClick(-1.0f)
 	, mHandleKeyboardInputs(true)
-	, mHandleMouseInputs(false)
 	, mIgnoreImGuiChild(false)
 	, mShowWhitespaces(false)
 	, mStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
@@ -723,6 +722,14 @@ void TextEditor::HandleKeyboardInputs()
 				current_mode = Insert;
 				return;
 			}
+			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V))) {
+				current_mode = Visual;
+				return;
+			}
+			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
+				MoveRight(1);
+				Backspace();
+			}
 			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_H)))
 				MoveLeft(1);
 			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_L)))
@@ -797,79 +804,28 @@ void TextEditor::HandleKeyboardInputs()
 				io.InputQueueCharacters.resize(0);
 			}
 		}
-	}
-}
-
-void TextEditor::HandleMouseInputs()
-{
-	ImGuiIO& io = ImGui::GetIO();
-	auto shift = io.KeyShift;
-	auto ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
-	auto alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
-
-	if (ImGui::IsWindowHovered())
-	{
-		if (!shift && !alt)
-		{
-			auto click = ImGui::IsMouseClicked(0);
-			auto doubleClick = ImGui::IsMouseDoubleClicked(0);
-			auto t = ImGui::GetTime();
-			auto tripleClick = click && !doubleClick && (mLastClick != -1.0f && (t - mLastClick) < io.MouseDoubleClickTime);
-
-			//Left mouse button triple click
-
-			if (tripleClick)
-			{
-				if (!ctrl)
-				{
-					mState.mCursorPosition = mInteractiveStart = mInteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
-					mSelectionMode = SelectionMode::Line;
-					SetSelection(mInteractiveStart, mInteractiveEnd, mSelectionMode);
-				}
-
-				mLastClick = -1.0f;
+		if(current_mode == Visual) {
+			if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_H)))
+				MoveLeft(1, true, false, 1);
+			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_L)))
+				MoveRight(1, true, false, 1);
+			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_J)))
+				MoveDown(1, true, 1);
+			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_K)))
+				MoveUp(1, true, 1);
+			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
+				Backspace();
+				current_mode = Normal;
+				return;
 			}
-
-			//Left mouse button double click
-
-			else if (doubleClick)
-			{
-				if (!ctrl)
-				{
-					mState.mCursorPosition = mInteractiveStart = mInteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
-					if (mSelectionMode == SelectionMode::Line)
-						mSelectionMode = SelectionMode::Normal;
-					else
-						mSelectionMode = SelectionMode::Word;
-					SetSelection(mInteractiveStart, mInteractiveEnd, mSelectionMode);
-				}
-
-				mLastClick = (float)ImGui::GetTime();
-			}
-
-			//Left mouse button click
-			else if (click)
-			{
-				mState.mCursorPosition = mInteractiveStart = mInteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
-				if (ctrl)
-					mSelectionMode = SelectionMode::Word;
-				else
-					mSelectionMode = SelectionMode::Normal;
-				SetSelection(mInteractiveStart, mInteractiveEnd, mSelectionMode);
-
-				mLastClick = (float)ImGui::GetTime();
-			}
-			// Mouse left button dragging (=> update selection)
-			else if (ImGui::IsMouseDragging(0) && ImGui::IsMouseDown(0))
-			{
-				io.WantCaptureMouse = true;
-				mState.mCursorPosition = mInteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
-				SetSelection(mInteractiveStart, mInteractiveEnd, mSelectionMode);
+			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V))) {
+				current_mode = Normal;
+				MoveLeft(0, false);
+				return;
 			}
 		}
 	}
 }
-
 
 void TextEditor::Render()
 {
@@ -990,7 +946,6 @@ void TextEditor::Render()
 				{
 					auto end = ImVec2(start.x + contentSize.x + scrollX, start.y + mCharAdvance.y);
 					drawList->AddRectFilled(start, end, mPalette[(int)(focused ? PaletteIndex::CurrentLineFill : PaletteIndex::CurrentLineFillInactive)]);
-					drawList->AddRect(start, end, mPalette[(int)PaletteIndex::CurrentLineEdge], 1.0f);
 				}
 
 				// Render the cursor
@@ -1000,7 +955,7 @@ void TextEditor::Render()
 					auto elapsed = timeEnd - mStartTime;
 					if (elapsed > 400)
 					{
-						float width = 1.0f;
+						float width = fontSize;
 						auto cindex = GetCharacterIndex(mState.mCursorPosition);
 						float cx = TextDistanceToLineStart(mState.mCursorPosition);
 
@@ -1154,9 +1109,6 @@ void TextEditor::Render(const char* aTitle, const ImVec2& aSize, bool aBorder)
 		HandleKeyboardInputs();
 		ImGui::PushAllowKeyboardFocus(true);
 	}
-
-	if (mHandleMouseInputs)
-		HandleMouseInputs();
 
 	ColorizeInternal();
 	Render();
@@ -1516,9 +1468,10 @@ void TextEditor::DeleteSelection()
 	Colorize(mState.mSelectionStart.mLine, 1);
 }
 
-void TextEditor::MoveUp(int aAmount, bool aSelect)
+void TextEditor::MoveUp(int aAmount, bool aSelect, int add)
 {
-	auto oldPos = mState.mCursorPosition;
+	auto tmpEnd = mState.mCursorPosition;
+	auto oldPos = tmpEnd;
 	mState.mCursorPosition.mLine = std::max(0, mState.mCursorPosition.mLine - aAmount);
 	if (oldPos != mState.mCursorPosition)
 	{
@@ -1527,43 +1480,48 @@ void TextEditor::MoveUp(int aAmount, bool aSelect)
 			if (oldPos == mInteractiveStart)
 				mInteractiveStart = mState.mCursorPosition;
 			else if (oldPos == mInteractiveEnd)
-				mInteractiveEnd = mState.mCursorPosition;
+				tmpEnd = mState.mCursorPosition;
 			else
 			{
 				mInteractiveStart = mState.mCursorPosition;
-				mInteractiveEnd = oldPos;
+				tmpEnd = oldPos;
 			}
 		}
 		else
-			mInteractiveStart = mInteractiveEnd = mState.mCursorPosition;
+			mInteractiveStart = tmpEnd = mState.mCursorPosition;
+		mInteractiveEnd = tmpEnd;
+		mInteractiveEnd.mColumn = tmpEnd.mColumn+add;
 		SetSelection(mInteractiveStart, mInteractiveEnd);
 
 		EnsureCursorVisible();
 	}
 }
 
-void TextEditor::MoveDown(int aAmount, bool aSelect)
+void TextEditor::MoveDown(int aAmount, bool aSelect, int add)
 {
 	assert(mState.mCursorPosition.mColumn >= 0);
-	auto oldPos = mState.mCursorPosition;
+	auto tmpEnd = mState.mCursorPosition;
+	auto oldPos = tmpEnd;
 	mState.mCursorPosition.mLine = std::max(0, std::min((int)mLines.size() - 1, mState.mCursorPosition.mLine + aAmount));
 
 	if (mState.mCursorPosition != oldPos)
 	{
 		if (aSelect)
 		{
-			if (oldPos == mInteractiveEnd)
-				mInteractiveEnd = mState.mCursorPosition;
+			if (oldPos == tmpEnd)
+				tmpEnd = mState.mCursorPosition;
 			else if (oldPos == mInteractiveStart)
 				mInteractiveStart = mState.mCursorPosition;
 			else
 			{
 				mInteractiveStart = oldPos;
-				mInteractiveEnd = mState.mCursorPosition;
+				tmpEnd = mState.mCursorPosition;
 			}
 		}
 		else
-			mInteractiveStart = mInteractiveEnd = mState.mCursorPosition;
+			mInteractiveStart = tmpEnd = mState.mCursorPosition;
+		mInteractiveEnd = tmpEnd;
+		mInteractiveEnd.mColumn = tmpEnd.mColumn+add;
 		SetSelection(mInteractiveStart, mInteractiveEnd);
 
 		EnsureCursorVisible();
@@ -1575,7 +1533,7 @@ static bool IsUTFSequence(char c)
 	return (c & 0xC0) == 0x80;
 }
 
-void TextEditor::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
+void TextEditor::MoveLeft(int aAmount, bool aSelect, bool aWordMode, int add)
 {
 	if (mLines.empty())
 		return;
@@ -1636,14 +1594,17 @@ void TextEditor::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
 	}
 	else
 		mInteractiveStart = mInteractiveEnd = mState.mCursorPosition;
-	SetSelection(mInteractiveStart, mInteractiveEnd, aSelect && aWordMode ? SelectionMode::Word : SelectionMode::Normal);
+	auto tmpEnd = mInteractiveEnd;
+	tmpEnd.mColumn = mInteractiveEnd.mColumn+add;
+	SetSelection(mInteractiveStart, tmpEnd, aSelect && aWordMode ? SelectionMode::Word : SelectionMode::Normal);
 
 	EnsureCursorVisible();
 }
 
-void TextEditor::MoveRight(int aAmount, bool aSelect, bool aWordMode)
+void TextEditor::MoveRight(int aAmount, bool aSelect, bool aWordMode, int add)
 {
-	auto oldPos = mState.mCursorPosition;
+	auto tmpEnd = mState.mCursorPosition;
+	auto oldPos = tmpEnd;
 
 	if (mLines.empty() || oldPos.mLine >= mLines.size())
 		return;
@@ -1675,18 +1636,20 @@ void TextEditor::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 
 	if (aSelect)
 	{
-		if (oldPos == mInteractiveEnd)
-			mInteractiveEnd = SanitizeCoordinates(mState.mCursorPosition);
+		if (oldPos == tmpEnd)
+			tmpEnd = SanitizeCoordinates(mState.mCursorPosition);
 		else if (oldPos == mInteractiveStart)
 			mInteractiveStart = mState.mCursorPosition;
 		else
 		{
 			mInteractiveStart = oldPos;
-			mInteractiveEnd = mState.mCursorPosition;
+			tmpEnd = mState.mCursorPosition;
 		}
 	}
 	else
-		mInteractiveStart = mInteractiveEnd = mState.mCursorPosition;
+		mInteractiveStart = tmpEnd = mState.mCursorPosition;
+	mInteractiveEnd = tmpEnd;
+	mInteractiveEnd.mColumn = tmpEnd.mColumn+add;
 	SetSelection(mInteractiveStart, mInteractiveEnd, aSelect && aWordMode ? SelectionMode::Word : SelectionMode::Normal);
 
 	EnsureCursorVisible();
@@ -1694,19 +1657,22 @@ void TextEditor::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 
 void TextEditor::MoveTop(bool aSelect)
 {
-	auto oldPos = mState.mCursorPosition;
+	auto tmpEnd = mState.mCursorPosition;
+	auto oldPos = tmpEnd;
 	SetCursorPosition(Coordinates(0, 0));
 
 	if (mState.mCursorPosition != oldPos)
 	{
 		if (aSelect)
 		{
-			mInteractiveEnd = oldPos;
+			tmpEnd = oldPos;
 			mInteractiveStart = mState.mCursorPosition;
 		}
 		else
-			mInteractiveStart = mInteractiveEnd = mState.mCursorPosition;
-		SetSelection(mInteractiveStart, mInteractiveEnd);
+			mInteractiveStart = tmpEnd = mState.mCursorPosition;
+		mInteractiveEnd = tmpEnd;
+		mInteractiveEnd.mColumn = tmpEnd.mColumn;
+		SetSelection(mInteractiveStart, tmpEnd);
 	}
 }
 

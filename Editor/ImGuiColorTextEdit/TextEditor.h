@@ -50,7 +50,7 @@ public:
 	{
 		Normal,
 		Insert,
-		Vision
+		Visual
 	};
 
 	Modes current_mode = Normal;
@@ -224,9 +224,6 @@ public:
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
 	void SetCursorPosition(const Coordinates& aPosition);
 
-	inline void SetHandleMouseInputs    (bool aValue){ mHandleMouseInputs    = aValue;}
-	inline bool IsHandleMouseInputsEnabled() const { return mHandleKeyboardInputs; }
-
 	inline void SetHandleKeyboardInputs (bool aValue){ mHandleKeyboardInputs = aValue;}
 	inline bool IsHandleKeyboardInputsEnabled() const { return mHandleKeyboardInputs; }
 
@@ -242,10 +239,10 @@ public:
 	void InsertText(const std::string& aValue);
 	void InsertText(const char* aValue);
 
-	void MoveUp(int aAmount = 1, bool aSelect = false);
-	void MoveDown(int aAmount = 1, bool aSelect = false);
-	void MoveLeft(int aAmount = 1, bool aSelect = false, bool aWordMode = false);
-	void MoveRight(int aAmount = 1, bool aSelect = false, bool aWordMode = false);
+	void MoveUp(int aAmount = 1, bool aSelect = false, int add = 0);
+	void MoveDown(int aAmount = 1, bool aSelect = false, int add = 0);
+	void MoveLeft(int aAmount = 1, bool aSelect = false, bool aWordMode = false, int add = 0);
+	void MoveRight(int aAmount = 1, bool aSelect = false, bool aWordMode = false, int add = 0);
 	void MoveTop(bool aSelect = false);
 	void MoveBottom(bool aSelect = false);
 	void MoveHome(bool aSelect = false);
@@ -351,7 +348,6 @@ private:
 	ImU32 GetGlyphColor(const Glyph& aGlyph) const;
 
 	void HandleKeyboardInputs();
-	void HandleMouseInputs();
 	void Render();
 
 	float mLineSpacing;
@@ -374,7 +370,6 @@ private:
 	int mColorRangeMin, mColorRangeMax;
 	SelectionMode mSelectionMode;
 	bool mHandleKeyboardInputs;
-	bool mHandleMouseInputs;
 	bool mIgnoreImGuiChild;
 	bool mShowWhitespaces;
 
