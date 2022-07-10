@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	// TEXT EDITOR SAMPLE
 	TextEditor editor;
-	auto lang = TextEditor::LanguageDefinition::Rust();
+	auto lang = TextEditor::RustLang::Rust();
 
 	// set your own known preprocessor symbols...
 	static const char* ppnames[] = { "NULL", "PM_REMOVE",
@@ -114,12 +114,6 @@ int main(int argc, char** argv) {
 		id.mDeclaration = std::string(idecls[i]);
 		lang.mIdentifiers.insert(std::make_pair(std::string(identifiers[i]), id));
 	}
-	editor.SetLanguageDefinition(lang);
-
-	TextEditor::ErrorMarkers markers;
-	markers.insert(std::make_pair<int, std::string>(6, "Example error here:\nInclude file not found: \"TextEditor.h\""));
-	markers.insert(std::make_pair<int, std::string>(41, "Another example error"));
-	editor.SetErrorMarkers(markers);
 
 	static const char* fileToEdit = "ImGuiColorTextEdit/TextEditor.rs";
 
@@ -195,12 +189,6 @@ int main(int argc, char** argv) {
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("View"))
-			{
-				editor.SetPalette(TextEditor::GetDarkPalette());
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
 		}
 
 		ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
