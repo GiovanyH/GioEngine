@@ -5,20 +5,11 @@
 #include <cmath>
 #include <stdio.h>
 
+#include "Config.h"
 #include "TextEditor.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
-
-template<class InputIt1, class InputIt2, class BinaryPredicate>
-bool equals(InputIt1 first1, InputIt1 last1,
-	InputIt2 first2, InputIt2 last2, BinaryPredicate p) {
-	for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-		if (!p(*first1, *first2))
-			return false;
-	}
-	return first1 == last1 && first2 == last2;
-}
 
 TextEditor::TextEditor()
 	: mLineSpacing(1.0f)
@@ -57,6 +48,53 @@ TextEditor::TextEditor()
 
 TextEditor::~TextEditor() {
 }
+
+static int UTF8CharLength(TextEditor::Char c) {
+	if ((c & 0xFE) == 0xFC)
+		return 6;
+	if ((c & 0xFC) == 0xF8)
+		return 5;
+	if ((c & 0xF8) == 0xF0)
+		return 4;
+	else if ((c & 0xF0) == 0xE0)
+		return 3;
+	else if ((c & 0xE0) == 0xC0)
+		return 2;
+	return 1;
+}
+
+static inline int ImTextCharToUtf8(char *buf, int buf_size, unsigned int c) {
+	if (c < 0x80) {
+		buf[0] = (char)c;
+		return 1;
+	}
+	if (c < 0x800) {
+		if (buf_size < 2) return 0;
+		buf[0] = (char)(0xc0 + (c >> 6));
+		buf[1] = (char)(0x80 + (c & 0x3f));
+		return 2;
+	}
+	if (c >= 0xdc00 && c < 0xe000) {
+		return 0;
+	}
+	if (c >= 0xd800 && c < 0xdc00) {
+		if (buf_size < 4) return 0;
+		buf[0] = (char)(0xf0 + (c >> 18));
+		buf[1] = (char)(0x80 + ((c >> 12) & 0x3f));
+		buf[2] = (char)(0x80 + ((c >> 6) & 0x3f));
+		buf[3] = (char)(0x80 + ((c) & 0x3f));
+		return 4;
+	}
+	//else if (c < 0x10000)
+	{
+		if (buf_size < 3) return 0;
+		buf[0] = (char)(0xe0 + (c >> 12));
+		buf[1] = (char)(0x80 + ((c >> 6) & 0x3f));
+		buf[2] = (char)(0x80 + ((c) & 0x3f));
+		return 3;
+	}
+}
+
 
 char *TextEditor::GetCurrentMode() {
 	switch(current_mode) {
@@ -123,52 +161,6 @@ TextEditor::Coordinates TextEditor::SanitizeCoordinates(const Coordinates & aVal
 	else {
 		column = mLines.empty() ? 0 : std::min(column, GetLineMaxColumn(line));
 		return Coordinates(line, column);
-	}
-}
-
-static int UTF8CharLength(TextEditor::Char c) {
-	if ((c & 0xFE) == 0xFC)
-		return 6;
-	if ((c & 0xFC) == 0xF8)
-		return 5;
-	if ((c & 0xF8) == 0xF0)
-		return 4;
-	else if ((c & 0xF0) == 0xE0)
-		return 3;
-	else if ((c & 0xE0) == 0xC0)
-		return 2;
-	return 1;
-}
-
-static inline int ImTextCharToUtf8(char* buf, int buf_size, unsigned int c) {
-	if (c < 0x80) {
-		buf[0] = (char)c;
-		return 1;
-	}
-	if (c < 0x800) {
-		if (buf_size < 2) return 0;
-		buf[0] = (char)(0xc0 + (c >> 6));
-		buf[1] = (char)(0x80 + (c & 0x3f));
-		return 2;
-	}
-	if (c >= 0xdc00 && c < 0xe000) {
-		return 0;
-	}
-	if (c >= 0xd800 && c < 0xdc00) {
-		if (buf_size < 4) return 0;
-		buf[0] = (char)(0xf0 + (c >> 18));
-		buf[1] = (char)(0x80 + ((c >> 12) & 0x3f));
-		buf[2] = (char)(0x80 + ((c >> 6) & 0x3f));
-		buf[3] = (char)(0x80 + ((c) & 0x3f));
-		return 4;
-	}
-	//else if (c < 0x10000)
-	{
-		if (buf_size < 3) return 0;
-		buf[0] = (char)(0xe0 + (c >> 12));
-		buf[1] = (char)(0x80 + ((c >> 6) & 0x3f));
-		buf[2] = (char)(0x80 + ((c) & 0x3f));
-		return 3;
 	}
 }
 
@@ -384,7 +376,6 @@ TextEditor::Coordinates TextEditor::FindNextWord(const Coordinates & aFrom) cons
 	if (at.mLine >= (int)mLines.size())
 		return at;
 
-	// skip to the next non-word character
 	auto cindex = GetCharacterIndex(aFrom);
 	bool isword = false;
 	bool skip = false;
@@ -557,6 +548,123 @@ ImU32 TextEditor::GetGlyphColor(const Glyph & aGlyph) const {
 		return ImU32(c0 | (c1 << 8) | (c2 << 16) | (c3 << 24));
 	}
 	return color;
+}
+
+void TextEditor::ColorizeInternal() {
+	if (mLines.empty() || !mColorizerEnabled) return;
+
+	if (mCheckComments) {
+		auto endLine = mLines.size();
+		auto endIndex = 0;
+		auto commentStartLine = endLine;
+		auto commentStartIndex = endIndex;
+		auto withinString = false;
+		auto withinSingleLineComment = false;
+		auto withinPreproc = false;
+		auto firstChar = true;
+		auto concatenate = false;
+		auto currentLine = 0;
+		auto currentIndex = 0;
+		while (currentLine < endLine || currentIndex < endIndex) {
+			auto& line = mLines[currentLine];
+
+			if (currentIndex == 0 && !concatenate) {
+				withinSingleLineComment = false;
+				withinPreproc = false;
+				firstChar = true;
+			}
+
+			concatenate = false;
+
+			if (!line.empty()) {
+				auto& g = line[currentIndex];
+				auto c = g.mChar;
+
+				if (c != mLanguageDefinition.mPreprocChar && !isspace(c)) firstChar = false;
+
+				if (currentIndex == (int)line.size() - 1 && line[line.size() - 1].mChar == '\\') concatenate = true;
+
+				bool inComment = (commentStartLine < currentLine || (commentStartLine == currentLine && commentStartIndex <= currentIndex));
+
+				if (withinString) {
+					line[currentIndex].mMultiLineComment = inComment;
+
+					if (c == '\"') {
+						if (currentIndex + 1 < (int)line.size() && line[currentIndex + 1].mChar == '\"') {
+							currentIndex += 1;
+							if (currentIndex < (int)line.size()) line[currentIndex].mMultiLineComment = inComment;
+						}
+						else withinString = false;
+					}
+					else if (c == '\\') {
+						currentIndex += 1;
+						if (currentIndex < (int)line.size()) line[currentIndex].mMultiLineComment = inComment;
+					}
+				}
+				else {
+					if (firstChar && c == mLanguageDefinition.mPreprocChar) withinPreproc = true;
+
+					if (c == '\"') {
+						withinString = true;
+						line[currentIndex].mMultiLineComment = inComment;
+					}
+					else {
+						auto pred = [](const char& a, const Glyph& b) { return a == b.mChar; };
+						auto from = line.begin() + currentIndex;
+						auto& startStr = mLanguageDefinition.mCommentStart;
+						auto& singleStartStr = mLanguageDefinition.mSingleLineComment;
+
+						if (singleStartStr.size() > 0 &&
+							currentIndex + singleStartStr.size() <= line.size() &&
+							equals(singleStartStr.begin(), singleStartStr.end(), from, from + singleStartStr.size(), pred)) {
+							withinSingleLineComment = true;
+						}
+						else if (!withinSingleLineComment && currentIndex + startStr.size() <= line.size() &&
+							equals(startStr.begin(), startStr.end(), from, from + startStr.size(), pred)) {
+							commentStartLine = currentLine;
+							commentStartIndex = currentIndex;
+						}
+
+						inComment = inComment = (commentStartLine < currentLine || (commentStartLine == currentLine && commentStartIndex <= currentIndex));
+
+						line[currentIndex].mMultiLineComment = inComment;
+						line[currentIndex].mComment = withinSingleLineComment;
+
+						auto& endStr = mLanguageDefinition.mCommentEnd;
+						if (currentIndex + 1 >= (int)endStr.size() &&
+							equals(endStr.begin(), endStr.end(), from + 1 - endStr.size(), from + 1, pred)) {
+							commentStartIndex = endIndex;
+							commentStartLine = endLine;
+						}
+					}
+				}
+				line[currentIndex].mPreprocessor = withinPreproc;
+				currentIndex += UTF8CharLength(c);
+				if (currentIndex >= (int)line.size()) {
+					currentIndex = 0;
+					++currentLine;
+				}
+			}
+			else {
+				currentIndex = 0;
+				++currentLine;
+			}
+		}
+		mCheckComments = false;
+	}
+
+	if (mColorRangeMin < mColorRangeMax) {
+		const int increment = (mLanguageDefinition.mTokenize == nullptr) ? 10 : 10000;
+		const int to = std::min(mColorRangeMin + increment, mColorRangeMax);
+		ColorizeRange(mColorRangeMin, to);
+		mColorRangeMin = to;
+
+		if (mColorRangeMax == mColorRangeMin) {
+			mColorRangeMin = std::numeric_limits<int>::max();
+			mColorRangeMax = 0;
+		}
+		return;
+	}
 }
 
 void TextEditor::HandleKeyboardInputs() {
@@ -1047,10 +1155,6 @@ void TextEditor::SetReadOnly(bool aValue) {
 	mReadOnly = aValue;
 }
 
-void TextEditor::SetColorizerEnable(bool aValue) {
-	mColorizerEnabled = aValue;
-}
-
 void TextEditor::SetCursorPosition(const Coordinates & aPosition) {
 	if (mState.mCursorPosition != aPosition) {
 		mState.mCursorPosition = aPosition;
@@ -1148,10 +1252,6 @@ void TextEditor::MoveDown(int aAmount, bool aSelect) {
 
 		EnsureCursorVisible();
 	}
-}
-
-static bool IsUTFSequence(char c) {
-	return (c & 0xC0) == 0x80;
 }
 
 void TextEditor::MoveLeft(int aAmount, bool aSelect) {
@@ -1499,32 +1599,6 @@ void TextEditor::Redo(int aSteps) {
 		mUndoBuffer[mUndoIndex++].Redo(this);
 }
 
-const TextEditor::Palette & TextEditor::GetDarkPalette() {
-	const static Palette p = { {
-			0xf9f5d7,	// Default
-			0xffd69c56,	// Keyword	
-			0xff00ff00,	// Number
-			0xff7070e0,	// String
-			0xff70a0e0, // Char literal
-			0xffffffff, // Punctuation
-			0xff408080,	// Preprocessor
-			0xffaaaaaa, // Identifier
-			0xff9bc64d, // Known identifier
-			0xffc040a0, // Preproc identifier
-			0xff206020, // Comment (single line)
-			0xff406020, // Comment (multi line)
-			0xff101010, // Background
-			0xffe0e0e0, // Cursor
-			0x80a06020, // Selection
-			0xff707000, // Line number
-			0x40000000, // Current line fill
-			0x40808080, // Current line fill (inactive)
-			0x40a0a0a0, // Current line edge
-		} };
-	return p;
-}
-
-
 std::string TextEditor::GetText() const {
 	return GetText(Coordinates(), Coordinates((int)mLines.size(), 0));
 }
@@ -1556,211 +1630,6 @@ std::string TextEditor::GetCurrentLineText()const {
 	return GetText(
 		Coordinates(mState.mCursorPosition.mLine, 0),
 		Coordinates(mState.mCursorPosition.mLine, lineLength));
-}
-
-void TextEditor::ProcessInputs() {
-}
-
-void TextEditor::Colorize(int aFromLine, int aLines) {
-	int toLine = aLines == -1 ? (int)mLines.size() : std::min((int)mLines.size(), aFromLine + aLines);
-	mColorRangeMin = std::min(mColorRangeMin, aFromLine);
-	mColorRangeMax = std::max(mColorRangeMax, toLine);
-	mColorRangeMin = std::max(0, mColorRangeMin);
-	mColorRangeMax = std::max(mColorRangeMin, mColorRangeMax);
-	mCheckComments = true;
-}
-
-void TextEditor::ColorizeRange(int aFromLine, int aToLine) {
-	if (mLines.empty() || aFromLine >= aToLine) return;
-
-	std::string buffer;
-	std::cmatch results;
-	std::string id;
-
-	int endLine = std::max(0, std::min((int)mLines.size(), aToLine));
-	for (int i = aFromLine; i < endLine; ++i) {
-		auto& line = mLines[i];
-
-		if (line.empty()) continue;
-
-		buffer.resize(line.size());
-		for (size_t j = 0; j < line.size(); ++j) {
-			auto& col = line[j];
-			buffer[j] = col.mChar;
-			col.mColorIndex = PaletteIndex::Default;
-		}
-
-		const char * bufferBegin = &buffer.front();
-		const char * bufferEnd = bufferBegin + buffer.size();
-
-		auto last = bufferEnd;
-
-		for (auto first = bufferBegin; first != last; ) {
-			const char * token_begin = nullptr;
-			const char * token_end = nullptr;
-			PaletteIndex token_color = PaletteIndex::Default;
-
-			bool hasTokenizeResult = false;
-
-			if (mLanguageDefinition.mTokenize != nullptr) {
-				if (mLanguageDefinition.mTokenize(first, last, token_begin, token_end, token_color)) hasTokenizeResult = true;
-			}
-
-			if (hasTokenizeResult == false) {
-				for (auto& p : mRegexList) {
-					if (std::regex_search(first, last, results, p.first, std::regex_constants::match_continuous)) {
-						hasTokenizeResult = true;
-
-						auto& v = *results.begin();
-						token_begin = v.first;
-						token_end = v.second;
-						token_color = p.second;
-						break;
-					}
-				}
-			}
-
-			if (hasTokenizeResult == false) {
-				first++;
-			}
-			else {
-				const size_t token_length = token_end - token_begin;
-
-				if (token_color == PaletteIndex::Identifier) {
-					id.assign(token_begin, token_end);
-
-					if (!line[first - bufferBegin].mPreprocessor) {
-						if (mLanguageDefinition.mKeywords.count(id) != 0) token_color = PaletteIndex::Keyword;
-						else if (mLanguageDefinition.mIdentifiers.count(id) != 0) token_color = PaletteIndex::KnownIdentifier;
-						else if (mLanguageDefinition.mPreprocIdentifiers.count(id) != 0) token_color = PaletteIndex::PreprocIdentifier;
-					}
-					else {
-						if (mLanguageDefinition.mPreprocIdentifiers.count(id) != 0) token_color = PaletteIndex::PreprocIdentifier;
-					}
-				}
-
-				for (size_t j = 0; j < token_length; ++j) line[(token_begin - bufferBegin) + j].mColorIndex = token_color;
-				first = token_end;
-			}
-		}
-	}
-}
-
-void TextEditor::ColorizeInternal() {
-	if (mLines.empty() || !mColorizerEnabled) return;
-
-	if (mCheckComments) {
-		auto endLine = mLines.size();
-		auto endIndex = 0;
-		auto commentStartLine = endLine;
-		auto commentStartIndex = endIndex;
-		auto withinString = false;
-		auto withinSingleLineComment = false;
-		auto withinPreproc = false;
-		auto firstChar = true;
-		auto concatenate = false;
-		auto currentLine = 0;
-		auto currentIndex = 0;
-		while (currentLine < endLine || currentIndex < endIndex) {
-			auto& line = mLines[currentLine];
-
-			if (currentIndex == 0 && !concatenate) {
-				withinSingleLineComment = false;
-				withinPreproc = false;
-				firstChar = true;
-			}
-
-			concatenate = false;
-
-			if (!line.empty()) {
-				auto& g = line[currentIndex];
-				auto c = g.mChar;
-
-				if (c != mLanguageDefinition.mPreprocChar && !isspace(c)) firstChar = false;
-
-				if (currentIndex == (int)line.size() - 1 && line[line.size() - 1].mChar == '\\') concatenate = true;
-
-				bool inComment = (commentStartLine < currentLine || (commentStartLine == currentLine && commentStartIndex <= currentIndex));
-
-				if (withinString) {
-					line[currentIndex].mMultiLineComment = inComment;
-
-					if (c == '\"') {
-						if (currentIndex + 1 < (int)line.size() && line[currentIndex + 1].mChar == '\"') {
-							currentIndex += 1;
-							if (currentIndex < (int)line.size()) line[currentIndex].mMultiLineComment = inComment;
-						}
-						else withinString = false;
-					}
-					else if (c == '\\') {
-						currentIndex += 1;
-						if (currentIndex < (int)line.size()) line[currentIndex].mMultiLineComment = inComment;
-					}
-				}
-				else {
-					if (firstChar && c == mLanguageDefinition.mPreprocChar) withinPreproc = true;
-
-					if (c == '\"') {
-						withinString = true;
-						line[currentIndex].mMultiLineComment = inComment;
-					}
-					else {
-						auto pred = [](const char& a, const Glyph& b) { return a == b.mChar; };
-						auto from = line.begin() + currentIndex;
-						auto& startStr = mLanguageDefinition.mCommentStart;
-						auto& singleStartStr = mLanguageDefinition.mSingleLineComment;
-
-						if (singleStartStr.size() > 0 &&
-							currentIndex + singleStartStr.size() <= line.size() &&
-							equals(singleStartStr.begin(), singleStartStr.end(), from, from + singleStartStr.size(), pred)) {
-							withinSingleLineComment = true;
-						}
-						else if (!withinSingleLineComment && currentIndex + startStr.size() <= line.size() &&
-							equals(startStr.begin(), startStr.end(), from, from + startStr.size(), pred)) {
-							commentStartLine = currentLine;
-							commentStartIndex = currentIndex;
-						}
-
-						inComment = inComment = (commentStartLine < currentLine || (commentStartLine == currentLine && commentStartIndex <= currentIndex));
-
-						line[currentIndex].mMultiLineComment = inComment;
-						line[currentIndex].mComment = withinSingleLineComment;
-
-						auto& endStr = mLanguageDefinition.mCommentEnd;
-						if (currentIndex + 1 >= (int)endStr.size() &&
-							equals(endStr.begin(), endStr.end(), from + 1 - endStr.size(), from + 1, pred)) {
-							commentStartIndex = endIndex;
-							commentStartLine = endLine;
-						}
-					}
-				}
-				line[currentIndex].mPreprocessor = withinPreproc;
-				currentIndex += UTF8CharLength(c);
-				if (currentIndex >= (int)line.size()) {
-					currentIndex = 0;
-					++currentLine;
-				}
-			}
-			else {
-				currentIndex = 0;
-				++currentLine;
-			}
-		}
-		mCheckComments = false;
-	}
-
-	if (mColorRangeMin < mColorRangeMax) {
-		const int increment = (mLanguageDefinition.mTokenize == nullptr) ? 10 : 10000;
-		const int to = std::min(mColorRangeMin + increment, mColorRangeMax);
-		ColorizeRange(mColorRangeMin, to);
-		mColorRangeMin = to;
-
-		if (mColorRangeMax == mColorRangeMin) {
-			mColorRangeMin = std::numeric_limits<int>::max();
-			mColorRangeMax = 0;
-		}
-		return;
-	}
 }
 
 float TextEditor::TextDistanceToLineStart(const Coordinates& aFrom) const {
@@ -1873,179 +1742,6 @@ void TextEditor::UndoRecord::Redo(TextEditor * aEditor) {
 	aEditor->EnsureCursorVisible();
 }
 
-static bool TokenizeCStyleString(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end) {
-	const char * p = in_begin;
-
-	if (*p == '"') {
-		p++;
-
-		while (p < in_end) {
-			if (*p == '"') {
-				out_begin = in_begin;
-				out_end = p + 1;
-				return true;
-			}
-
-			if (*p == '\\' && p + 1 < in_end && p[1] == '"') p++;
-
-			p++;
-		}
-	}
-
-	return false;
-}
-
-static bool TokenizeCStyleCharacterLiteral(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end) {
-	const char * p = in_begin;
-
-	if (*p == '\'') {
-		p++;
-
-		if (p < in_end && *p == '\\') p++;
-
-		if (p < in_end) p++;
-
-		if (p < in_end && *p == '\'') {
-			out_begin = in_begin;
-			out_end = p + 1;
-			return true;
-		}
-	}
-
-	return false;
-}
-
-static bool TokenizeCStyleIdentifier(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end) {
-	const char * p = in_begin;
-
-	if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_') {
-		p++;
-
-		while ((p < in_end) && ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '_')) p++;
-
-		out_begin = in_begin;
-		out_end = p;
-		return true;
-	}
-
-	return false;
-}
-
-static bool TokenizeCStyleNumber(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end) {
-	const char * p = in_begin;
-
-	const bool startsWithNumber = *p >= '0' && *p <= '9';
-
-	if (*p != '+' && *p != '-' && !startsWithNumber) return false;
-
-	p++;
-
-	bool hasNumber = startsWithNumber;
-
-	while (p < in_end && (*p >= '0' && *p <= '9')) {
-		hasNumber = true;
-
-		p++;
-	}
-
-	if (hasNumber == false) return false;
-
-	bool isFloat = false;
-	bool isHex = false;
-	bool isBinary = false;
-
-	if (p < in_end) {
-		if (*p == '.')
-		{
-			isFloat = true;
-
-			p++;
-
-			while (p < in_end && (*p >= '0' && *p <= '9')) p++;
-		}
-		else if (*p == 'x' || *p == 'X') {
-			isHex = true;
-
-			p++;
-
-			while (p < in_end && ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))) p++;
-		}
-		else if (*p == 'b' || *p == 'B') {
-			isBinary = true;
-
-			p++;
-
-			while (p < in_end && (*p >= '0' && *p <= '1')) p++;
-		}
-	}
-
-	if (isHex == false && isBinary == false) {
-		if (p < in_end && (*p == 'e' || *p == 'E')) {
-			isFloat = true;
-
-			p++;
-
-			if (p < in_end && (*p == '+' || *p == '-')) p++;
-
-			bool hasDigits = false;
-
-			while (p < in_end && (*p >= '0' && *p <= '9')) {
-				hasDigits = true;
-				p++;
-			}
-
-			if (hasDigits == false) return false;
-		}
-
-		if (p < in_end && *p == 'f') p++;
-	}
-
-	if (isFloat == false) {
-		while (p < in_end && (*p == 'u' || *p == 'U' || *p == 'l' || *p == 'L')) p++;
-	}
-
-	out_begin = in_begin;
-	out_end = p;
-	return true;
-}
-
-static bool TokenizeCStylePunctuation(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end) {
-	(void)in_end;
-
-	switch (*in_begin)
-	{
-		case '[':
-		case ']':
-		case '{':
-		case '}':
-		case '!':
-		case '%':
-		case '^':
-		case '&':
-		case '*':
-		case '(':
-		case ')':
-		case '-':
-		case '+':
-		case '=':
-		case '~':
-		case '|':
-		case '<':
-		case '>':
-		case '?':
-		case ':':
-		case '/':
-		case ';':
-		case ',':
-		case '.':
-		out_begin = in_begin;
-		out_end = in_begin + 1;
-		return true;
-	}
-
-	return false;
-}
-
 const TextEditor::RustLang& TextEditor::RustLang::Rust() {
 	static bool inited = false;
 	static RustLang langDef;
@@ -2090,5 +1786,3 @@ const TextEditor::RustLang& TextEditor::RustLang::Rust() {
 	}
 	return langDef;
 }
-
-

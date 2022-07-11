@@ -30,30 +30,12 @@ target_sources(IMGUI
 	)
 
 target_include_directories(IMGUI
-	PUBLIC ${PROJECT_DIR}
 	PUBLIC ${PROJECT_DIR}/Core
 	PUBLIC ${PROJECT_DIR}/Editor
-	PUBLIC ${TEXTEDIT_DIR}
+	PUBLIC ${PROJECT_DIR}
 	PUBLIC ${IMGUI_DIR}
 	PUBLIC ${IMGUI_DIR}/backends
 	PUBLIC ${SDL2_DIR}/include
-	)
-
-# ================= EDITOR =================
-set(TEXTEDIT_DIR ${PROJECT_DIR}/Editor/ImGuiColorTextEdit)
-add_library(EDITOR STATIC)
-	
-target_sources(EDITOR
-	PRIVATE
-		${TEXTEDIT_DIR}/TextEditor.cpp
-		${PROJECT_DIR}/Editor/Version.cpp
-	)
-
-target_include_directories(EDITOR 
-	PUBLIC ${PROJECT_DIR}
-	PUBLIC ${PROJECT_DIR}/Core
-	PUBLIC ${TEXTEDIT_DIR}
-	PUBLIC ${PROJECT_DIR}/Editor
 	)
 
 if(USE_GLES OR RASPBIAN)
@@ -70,10 +52,4 @@ else()
 	target_link_libraries(IMGUI PUBLIC ${OPENGL_LIBRARIES})
 endif()
 
-target_link_libraries(EDITOR PUBLIC IMGUI)
 target_link_libraries(IMGUI PUBLIC SDL2main SDL2 ${CMAKE_DL_LIBS})
-
-add_executable(GioEngine)
-target_sources(GioEngine PUBLIC ${PROJECT_DIR}/Core/main.cpp)
-target_link_libraries(GioEngine PUBLIC IMGUI EDITOR)
-set_target_properties(GioEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
