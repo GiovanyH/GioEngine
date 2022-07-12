@@ -53,13 +53,13 @@ void show_gioengine_projects() {
 	for(auto Project : UserProjects) std::cout << Project << std::endl;
 }
 
-void create_gioengine_project(const char *project_name) {
+void create_gioengine_project(const char *project_name, const char *project_directory) {
 	std::string file_path = gioengine_directory + std::string("/user_projects.gio");
 
 	std::ofstream user_projects_file;
 	user_projects_file.open(file_path.c_str(), std::ios_base::app);
 
-	user_projects_file << '\n' << project_name;
+	user_projects_file << project_name << '#' << project_directory << '\n';
 
 	user_projects_file.close();
 }
