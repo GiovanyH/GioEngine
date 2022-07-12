@@ -1,12 +1,18 @@
-# GioEngine
-My Engine / Currently making a vim-like code editor for rust  
+![Logo](https://github.com/GiovanyH/GioEngine/blob/main/Logo.png)  
+=====
 
-# Linux build:
+<center>My Engine / Currently making a vim-like code editor for rust  
+
+----
+
+<sub>(You can do whatever you want with this code :))
+
+### Linux build:
 clone the repository  
-`git clone https://github.com/GiovanyH/GioEngine`
-update submodules
-`git submodule init && git submodule update`
-`mkdir build`
+`git clone https://github.com/GiovanyH/GioEngine`  
+update submodules  
+`git submodule init && git submodule update`  
+`mkdir build`  
 `cd build/`  
 `sh build.sh` or  
 `cmake ..`  

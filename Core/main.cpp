@@ -21,10 +21,33 @@
 #include <SDL_opengl.h>
 #endif
 
+
+
+// Wide window with two buttons & one text field
+static void ShowProjectCreationWindow(bool* p_open)
+{
+	ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_FirstUseEver);
+	ImGui::Begin("Project Creation", p_open);
+
+	// Main window
+	bool clear = ImGui::Button("Clear");
+	ImGui::SameLine();
+	bool copy = ImGui::Button("Copy");
+
+	static char buf[100] = "";
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##Text", buf, IM_ARRAYSIZE(buf));
+
+	ImGui::Separator();
+
+	ImGui::End();
+}
+
+
 static void ShowExampleAppLayout(bool* p_open)
 {
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Example: Simple layout", p_open, ImGuiWindowFlags_MenuBar))
+    if (ImGui::Begin("ProjectTree", p_open, ImGuiWindowFlags_MenuBar))
     {
         if (ImGui::BeginMenuBar())
         {
@@ -209,6 +232,7 @@ int main(int argc, char** argv) {
 
 		ImGui::ShowDemoWindow(&show_demo_window);
 		ShowExampleAppLayout(&show_demo_window);
+		ShowProjectCreationWindow(&show_demo_window);
 
 		SimpleOverlay();
 
