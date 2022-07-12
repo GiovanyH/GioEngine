@@ -5,7 +5,7 @@
 
 #include "Config.h"
 #include "imgui.h"
-#include "imgui_impl_sdl.h"
+#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <fstream>
 #include <streambuf>
@@ -13,30 +13,36 @@
 #include "Version.h"
 #include <stdio.h>
 #include <string>
-#include <SDL.h>
 #include "Project.h"
 #if defined(IMGUI_IMPL_OPENGL_ES2)
-#include <SDL_opengles2.h>
-#else
-#include <SDL_opengl.h>
+#include <GLES2/gl2.h>
 #endif
+#include <GLFW/glfw3.h>
 
-
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
 
 // Wide window with two buttons & one text field
-static void ShowProjectCreationWindow(bool* p_open)
-{
+static void ShowProjectCreationWindow(bool* p_open) {
 	ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Project Creation", p_open);
 
-	// Main window
-	bool clear = ImGui::Button("Clear");
-	ImGui::SameLine();
-	bool copy = ImGui::Button("Copy");
-
 	static char buf[100] = "";
 	ImGui::SetNextItemWidth(-FLT_MIN);
-	ImGui::InputText("##Text", buf, IM_ARRAYSIZE(buf));
+
+
+	// Main window
+	if(ImGui::Button("Create")) {
+		create_gioengine_project(buf);
+		reload_gioengine_projects();
+		*p_open = false;
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")) *p_open = false;
+
+	ImGui::InputText("##Project Name", buf, IM_ARRAYSIZE(buf));
 
 	ImGui::Separator();
 
@@ -44,15 +50,17 @@ static void ShowProjectCreationWindow(bool* p_open)
 }
 
 
-static void ShowExampleAppLayout(bool* p_open)
-{
+static void ShowProjectManager(bool* p_open, bool* PJC_open) {
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("ProjectTree", p_open, ImGuiWindowFlags_MenuBar))
     {
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File")) {
-		if (ImGui::MenuItem("Create")) create_gioengine_project("test");
+		if (ImGui::MenuItem("Create")) {
+			*PJC_open = true;
+			//create_gioengine_project("test");
+		}
 		if (ImGui::MenuItem("Reload")) reload_gioengine_projects();
                 if (ImGui::MenuItem("Close")) *p_open = false;
                 ImGui::EndMenu();
@@ -66,7 +74,7 @@ static void ShowExampleAppLayout(bool* p_open)
             for (int i = 0; i < get_user_projects().size(); i++) {
 		auto Project = get_user_projects()[i];
                 char label[128];
-                sprintf(label, Project.c_str(), i);
+                sprintf(label, Project.c_str());
                 if (ImGui::Selectable(label, selected == i))
                     selected = i;
             }
@@ -81,24 +89,21 @@ static void ShowExampleAppLayout(bool* p_open)
             ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
             ImGui::Text("MyObject: %d", selected);
             ImGui::Separator();
-            if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
-            {
-                if (ImGui::BeginTabItem("Description"))
-                {
+            if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None)) {
+                if (ImGui::BeginTabItem("Description")) {
                     ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
                     ImGui::EndTabItem();
                 }
-                if (ImGui::BeginTabItem("Details"))
-                {
+                if (ImGui::BeginTabItem("Details")) {
                     ImGui::Text("ID: 0123456789");
                     ImGui::EndTabItem();
                 }
                 ImGui::EndTabBar();
             }
             ImGui::EndChild();
-            if (ImGui::Button("Revert")) {}
+            if (ImGui::Button("Open")) {}
             ImGui::SameLine();
-            if (ImGui::Button("Save")) {}
+            if (ImGui::Button("Delete")) {}
             ImGui::EndGroup();
         }
     }
@@ -107,39 +112,39 @@ static void ShowExampleAppLayout(bool* p_open)
 
 
 int main(int argc, char** argv) {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
-		printf("Error: %s\n", SDL_GetError());
-		return -1;
-	}
+	glfwSetErrorCallback(glfw_error_callback);
+	if (!glfwInit())
+		return 1;
 
+// Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
+	// GL ES 2.0 + GLSL 100
 	const char* glsl_version = "#version 100";
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 #elif defined(__APPLE__)
+	// GL 3.2 + GLSL 150
 	const char* glsl_version = "#version 150";
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 #else
+	// GL 3.0 + GLSL 130
 	const char* glsl_version = "#version 130";
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-	SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
-	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
-	SDL_GL_MakeCurrent(window, gl_context);
-	SDL_GL_SetSwapInterval(1); // Enable vsync
+	// Create window with graphics context
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+	if (window == NULL)
+		return 1;
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1); // Enable vsync
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -147,7 +152,7 @@ int main(int argc, char** argv) {
 
 	ImGui::StyleColorsDark();
 
-	ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -212,27 +217,22 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	bool show_demo_window = true;
+	bool show_demo_window = false;
+	bool show_project_manager = true;
+	bool show_project_creation_window = false;
 	load_gioengine_projects();
 
 
-	bool done = false;
-	while (!done) {
-		SDL_Event event;
-		while (SDL_PollEvent(&event)) {
-			ImGui_ImplSDL2_ProcessEvent(&event);
-			if (event.type == SDL_QUIT)
-			done = true;
-			if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
-			done = true;
-        	}
+	while (!glfwWindowShouldClose(window)) {
+		glfwPollEvents();
+		
 		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::ShowDemoWindow(&show_demo_window);
-		ShowExampleAppLayout(&show_demo_window);
-		ShowProjectCreationWindow(&show_demo_window);
+		if(show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+		if(show_project_manager) ShowProjectManager(&show_project_manager, &show_project_creation_window);
+		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
 
 		SimpleOverlay();
 
@@ -246,20 +246,22 @@ int main(int argc, char** argv) {
 		editor.Render("TextEditor");
 
 		ImGui::Render();
-		glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+		int display_w, display_h;
+		glfwGetFramebufferSize(window, &display_w, &display_h);
+		glViewport(0, 0, display_w, display_h);
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		SDL_GL_SwapWindow(window);
+
+		glfwSwapBuffers(window);
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplSDL2_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
-	SDL_GL_DeleteContext(gl_context);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+	glfwDestroyWindow(window);
+	glfwTerminate();
 
 	return 0;
 }

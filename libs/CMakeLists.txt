@@ -1,15 +1,7 @@
-# ================= SDL ================= 
-
 cmake_policy(SET CMP0077 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-if(RASPBIAN AND RPI_HAS_NEON)
-	add_compile_options(-mfpu=neon)
-endif()
-
-set(SDL2_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SDL)
-add_subdirectory(${SDL2_DIR})
-
+find_package(glfw3 REQUIRED)
 
 #================== IMGUI ================= 
 
@@ -26,7 +18,7 @@ target_sources(IMGUI
 
 	PRIVATE
 		${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
-		${IMGUI_DIR}/backends/imgui_impl_sdl.cpp
+		${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
 	)
 
 target_include_directories(IMGUI
@@ -52,4 +44,5 @@ else()
 	target_link_libraries(IMGUI PUBLIC ${OPENGL_LIBRARIES})
 endif()
 
-target_link_libraries(IMGUI PUBLIC SDL2main SDL2 ${CMAKE_DL_LIBS})
+#target_link_libraries(IMGUI PUBLIC SDL2main SDL2 ${CMAKE_DL_LIBS})
+target_link_libraries(IMGUI PUBLIC glfw ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS})
