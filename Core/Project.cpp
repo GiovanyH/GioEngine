@@ -16,11 +16,11 @@
 
 #include "Project.h"
 
+std::vector<std::string> UserProjects;
 struct passwd *pw = getpwuid(getuid());
 std::string homedir = pw->pw_dir;
 
 std::string gioengine_directory = homedir + "/.GioEngine";
-std::vector<std::string> UserProjects;
 
 void create_gioengine_directory() {
 	std::filesystem::create_directory(gioengine_directory);
@@ -44,6 +44,11 @@ void load_gioengine_projects() {
 	user_projects_file.close();
 }
 
+void reload_gioengine_projects() {
+	UserProjects.clear();
+	load_gioengine_projects();
+}
+
 void show_gioengine_projects() {
 	for(auto Project : UserProjects) std::cout << Project << std::endl;
 }
@@ -63,12 +68,6 @@ void load_gioengine_project(const char *project_name) {
 	load_gioengine_directory();
 }
 
-int main(void) {
-	load_gioengine_projects();
-	show_gioengine_projects();
-
-	std::string project_name;
-	std::cin >> project_name;
-
-	create_gioengine_project(project_name.c_str());
+std::vector<std::string> get_user_projects() {
+	return UserProjects;
 }
