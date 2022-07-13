@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-SET(GCC_COVERAGE_COMPILE_FLAGS "-g")
-
 project(GioEngine VERSION 1.2.0)
 
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -10,7 +8,7 @@ add_subdirectory("libs")
 add_subdirectory("Editor")
 add_subdirectory("Core")
 
-configure_file(Core/Config.h.in ${PROJECT_DIR}/Core/Config.h)
+configure_file(Core/Config/Config.h.in ${PROJECT_DIR}/Core/Config/Config.h)
 
 add_executable(GioEngine)
 include_directories(${PROJECT_DIR}/Editor/Core)

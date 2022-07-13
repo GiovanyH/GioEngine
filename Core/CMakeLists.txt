@@ -1,1 +1,1 @@
-add_library(ProjectManager Project.cpp Project.h) 
+add_library(ProjectManager ProjectManager/Project.cpp ProjectManager/Project.h) 

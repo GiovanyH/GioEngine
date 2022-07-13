@@ -21,6 +21,7 @@ struct passwd *pw = getpwuid(getuid());
 std::string homedir = pw->pw_dir;
 
 std::string gioengine_directory = homedir + "/.GioEngine";
+std::string current_project_directory;
 
 void create_gioengine_directory() {
 	std::filesystem::create_directory(gioengine_directory);
@@ -68,6 +69,44 @@ void load_gioengine_project(const char *project_name) {
 	load_gioengine_directory();
 }
 
+void erase_file_line(std::string path, std::string eraseLine) {
+    std::string line;
+    std::ifstream fin;
+    
+    fin.open(path);
+    // contents of path must be copied to a temp file then
+    // renamed back to the path file
+    std::ofstream temp;
+    temp.open("temp.txt");
+
+    while (getline(fin, line)) {
+        // write all lines to temp other than the line marked for erasing
+        if (line != eraseLine)
+            temp << line << std::endl;
+    }
+
+    temp.close();
+    fin.close();
+
+    // required conversion for remove and rename functions
+    const char * p = path.c_str();
+    remove(p);
+    rename("temp.txt", p);
+} 
+
+void delete_gioengine_project(std::string project_name) {
+	std::string file_path = gioengine_directory + std::string("/user_projects.gio");
+	erase_file_line(file_path, project_name); 
+}
+
 std::vector<std::string> get_user_projects() {
 	return UserProjects;
+}
+
+std::string get_current_project_dir() {
+	return current_project_directory;
+}
+
+void set_current_project_dir(std::string dir) {
+	current_project_directory = dir;
 }

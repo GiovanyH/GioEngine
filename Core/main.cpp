@@ -10,11 +10,11 @@
 #include <fstream>
 #include <streambuf>
 #include "TextEditor.h"
-#include "Version.h"
+#include "Config/Version.h"
 #include <stdio.h>
 #include <string>
 #include <iostream>
-#include "Project.h"
+#include "ProjectManager/Project.h"
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
@@ -48,8 +48,7 @@ static void ShowProjectCreationWindow(bool* p_open) {
 	ImGui::End();
 }
 
-size_t split(const std::string &txt, std::vector<std::string> &strs, char ch)
-{
+size_t split(const std::string &txt, std::vector<std::string> &strs, char ch) {
     size_t pos = txt.find( ch );
     size_t initialPos = 0;
     strs.clear();
@@ -122,9 +121,15 @@ static void ShowProjectManager(bool* p_open, bool* PJC_open) {
 		ImGui::EndTabBar();
 	}
 	ImGui::EndChild();
-	if (ImGui::Button("Open")) {}
+	if (ImGui::Button("Open")) {
+		set_current_project_dir(Project[1]);
+		*p_open = false;
+	}
 	ImGui::SameLine();
-	if (ImGui::Button("Delete")) {}
+	if (ImGui::Button("Delete")) {
+		delete_gioengine_project(get_user_projects()[selected]);
+		reload_gioengine_projects();
+	}
 	ImGui::EndGroup();
     }
     ImGui::End();
@@ -133,7 +138,7 @@ static void ShowProjectManager(bool* p_open, bool* PJC_open) {
 void ShowExampleAppDockSpace(bool* p_open)
 {
     static bool opt_fullscreen = true;
-    static bool opt_padding = false;
+    static bool opt_padding = true;
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -172,28 +177,6 @@ void ShowExampleAppDockSpace(bool* p_open)
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     }
 
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::BeginMenu("Options"))
-        {
-            ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
-            ImGui::MenuItem("Padding", NULL, &opt_padding);
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("Flag: NoSplit",                "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))                 { dockspace_flags ^= ImGuiDockNodeFlags_NoSplit; }
-            if (ImGui::MenuItem("Flag: NoResize",               "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))                { dockspace_flags ^= ImGuiDockNodeFlags_NoResize; }
-            if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0))  { dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode; }
-            if (ImGui::MenuItem("Flag: AutoHideTabBar",         "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))          { dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar; }
-            if (ImGui::MenuItem("Flag: PassthruCentralNode",    "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0, opt_fullscreen)) { dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode; }
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("Close", NULL, false, p_open != NULL))
-                *p_open = false;
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
-
     ImGui::End();
 }
 
@@ -227,7 +210,7 @@ int main(int argc, char** argv) {
 #endif
 
 	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "GioEngine", NULL, NULL);
 	if (window == NULL) return 1;
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
@@ -305,7 +288,10 @@ int main(int argc, char** argv) {
 	bool show_project_manager = true;
 	bool show_project_creation_window = false;
 	bool show_dockspace = true;
+	bool show_text_editor = false;
 	load_gioengine_projects();
+
+	ImGui::GetStyle().WindowRounding = 3.0f;
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -321,14 +307,20 @@ int main(int argc, char** argv) {
 
 		SimpleOverlay();
 
-		auto cpos = editor.GetCursorPosition();
+		if(show_text_editor) {
+			ImGui::Begin("Text Editor Demo", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
 
-		ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
-			editor.IsOverwrite() ? "Ovr" : "Ins",
-			editor.CanUndo() ? "*" : " ",
-			editor.GetCurrentMode(), fileToEdit);
+			auto cpos = editor.GetCursorPosition();
 
-		editor.Render("TextEditor");
+			ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
+				editor.IsOverwrite() ? "Ovr" : "Ins",
+				editor.CanUndo() ? "*" : " ",
+				editor.GetCurrentMode(), fileToEdit);
+
+			editor.Render("TextEditor");
+
+			ImGui::End();
+		}
 
 		ImGui::Render();
 		int display_w, display_h;
