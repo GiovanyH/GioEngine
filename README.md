@@ -1,9 +1,11 @@
 ![Logo](https://github.com/GiovanyH/GioEngine/blob/main/Logo.png)  
 =====
+
 ATUMALAKA
-<center>My Engine / Currently making a vim-like code editor for rust  
-Goal:  
+<center>My Engine / Currently making a vim-like code editor for rust   
+Goal:    
 * Provide a general Game Engine that is free and open source
+* Simple to understand and use | uses rust as a language
 
 ----
 
@@ -11,14 +13,10 @@ Goal:
 
 #### Linux build:
 clone the repository  
-`git clone https://github.com/GiovanyH/GioEngine`  
-update submodules  
-`git submodule init && git submodule update`  
+`git clone --recurse-submodules https://github.com/GiovanyH/GioEngine`  
 `mkdir build`  
 `cd build/`  
-`sh build.sh` or  
 `cmake ..`  
 `cmake --build .`  
-`./GioEngine`  
 
 [Discord](https://discord.gg/DQbDc58sJ6)

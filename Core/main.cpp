@@ -73,7 +73,7 @@ std::vector<std::string> get_project(std::string project) {
 	return project_vec;
 }
 
-static void ShowProjectManager(bool* p_open, bool* PJC_open) {
+static void ShowProjectManager(bool* p_open, bool* PJC_open, bool* txt_open) {
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("ProjectTree", p_open, ImGuiWindowFlags_MenuBar)) {
         if (ImGui::BeginMenuBar()) {
@@ -122,7 +122,8 @@ static void ShowProjectManager(bool* p_open, bool* PJC_open) {
 	}
 	ImGui::EndChild();
 	if (ImGui::Button("Open")) {
-		set_current_project_dir(Project[1]);
+		set_current_project_dir(Project[1] + '/' + Project[0]);
+		*txt_open = true;	
 		*p_open = false;
 	}
 	ImGui::SameLine();
@@ -273,15 +274,6 @@ int main(int argc, char** argv) {
 		lang.mIdentifiers.insert(std::make_pair(std::string(identifiers[i]), id));
 	}
 
-	static const char* fileToEdit = "ImGuiColorTextEdit/TextEditor.rs";
-	{
-		std::ifstream t(fileToEdit);
-		if (t.good()) {
-			std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-			editor.SetText(str);
-		}
-	}
-
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	bool show_demo_window = false;
@@ -302,20 +294,30 @@ int main(int argc, char** argv) {
 
 		if(show_dockspace) ShowExampleAppDockSpace(&show_dockspace);
 		if(show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-		if(show_project_manager) ShowProjectManager(&show_project_manager, &show_project_creation_window);
+		// better way of doing this
+		if(show_project_manager) ShowProjectManager(&show_project_manager, &show_project_creation_window, &show_text_editor);
 		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
 
 		SimpleOverlay();
 
 		if(show_text_editor) {
-			ImGui::Begin("Text Editor Demo", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+			std::string fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
+			{
+				std::ifstream t(fileToEdit.c_str());
+				if (t.good()) {
+					std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+					editor.SetText(str);
+				}
+			}
+
+			ImGui::Begin("Vim-like editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
 
 			auto cpos = editor.GetCursorPosition();
 
 			ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 				editor.IsOverwrite() ? "Ovr" : "Ins",
 				editor.CanUndo() ? "*" : " ",
-				editor.GetCurrentMode(), fileToEdit);
+				editor.GetCurrentMode(), fileToEdit.c_str());
 
 			editor.Render("TextEditor");
 

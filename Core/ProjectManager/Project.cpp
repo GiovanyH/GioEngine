@@ -63,6 +63,11 @@ void create_gioengine_project(const char *project_name, const char *project_dire
 	user_projects_file << project_name << '#' << project_directory << '\n';
 
 	user_projects_file.close();
+
+	std::string project_path = std::string(project_directory);
+	std::filesystem::create_directories(project_path);
+
+	system((std::string("cargo new ") + project_path + '/' + project_name).c_str());
 }
 
 void load_gioengine_project(const char *project_name) {

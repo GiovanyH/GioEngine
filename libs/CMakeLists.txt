@@ -1,7 +1,7 @@
 cmake_policy(SET CMP0077 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-find_package(glfw3 REQUIRED)
+add_subdirectory(glfw)
 
 #================== IMGUI ================= 
 
@@ -44,5 +44,4 @@ else()
 	target_link_libraries(IMGUI PUBLIC ${OPENGL_LIBRARIES})
 endif()
 
-#target_link_libraries(IMGUI PUBLIC SDL2main SDL2 ${CMAKE_DL_LIBS})
 target_link_libraries(IMGUI PUBLIC glfw ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS})
