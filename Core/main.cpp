@@ -20,6 +20,8 @@
 #endif
 #include <GLFW/glfw3.h>
 
+#include "imfilebrowser.h"
+
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
@@ -285,6 +287,15 @@ int main(int argc, char** argv) {
 
 	ImGui::GetStyle().WindowRounding = 3.0f;
 
+	//...initialize rendering window and imgui
+
+	// create a file browser instance
+	ImGui::FileBrowser fileDialog;
+
+	// (optional) set browser properties
+	fileDialog.SetTitle("title");
+	fileDialog.SetTypeFilters({ ".h", ".cpp" });
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		
@@ -297,6 +308,26 @@ int main(int argc, char** argv) {
 		// better way of doing this
 		if(show_project_manager) ShowProjectManager(&show_project_manager, &show_project_creation_window, &show_text_editor);
 		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
+
+		//...do other stuff like ImGui::NewFrame();
+
+		if(ImGui::Begin("dummy window"))
+		{
+		    // open file dialog when user clicks this button
+		    if(ImGui::Button("open file dialog"))
+			fileDialog.Open();
+		}
+		ImGui::End();
+
+		fileDialog.Display();
+
+		if(fileDialog.HasSelected())
+		{
+		    std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
+		    fileDialog.ClearSelected();
+		}
+
+		//...do other stuff like ImGui::Render();
 
 		SimpleOverlay();
 

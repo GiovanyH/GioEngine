@@ -1,7 +1,7 @@
 ![Logo](https://github.com/GiovanyH/GioEngine/blob/main/Logo.png)  
 =====
 
-ATUMALAKA
+#### ATUMALAKA
 
 <center>My Engine / Currently making a vim-like code editor for rust
 
@@ -13,6 +13,8 @@ Goal:
 ----
 
 <sub>(You can do whatever you want with this code :))
+
+#### Current version: Atumalaka
 
 #### Linux build:
 clone the repository  

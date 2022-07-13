@@ -4,3 +4,7 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw
+[submodule "libs/ImGuiFileDialog"]
+	path = libs/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog
+	branch = Lib_Only
