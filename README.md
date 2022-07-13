@@ -2,10 +2,13 @@
 =====
 
 ATUMALAKA
-<center>My Engine / Currently making a vim-like code editor for rust   
-Goal:    
-* Provide a general Game Engine that is free and open source
-* Simple to understand and use | uses rust as a language
+
+<center>My Engine / Currently making a vim-like code editor for rust
+
+Goal:
+
+ - Provide a general Game Engine that is free and open source
+ - Simple to understand and use | uses rust as lang
 
 ----
 
