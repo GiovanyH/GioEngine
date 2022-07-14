@@ -24,17 +24,20 @@
 
 // Better way of doing this later
 bool show_text_editor = false;
-bool show_file_browser = false;
 bool show_project_creation_window = false;
+bool show_file_browser = false;
+
+std::string prj_path_;
 
 #define show_text_editor_fn() (show_text_editor = true)
-#define show_file_browser_fn() (show_file_browser = true)
 #define show_project_creation_window_fn() (show_project_creation_window = true)
-
-
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
+void init_engine_windows() {
+	show_text_editor = true;
 }
 
 // Wide window with two buttons & one text field
@@ -42,8 +45,8 @@ static void ShowProjectCreationWindow(bool* p_open) {
 	ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Project Creation", p_open);
 
-	static char prj_name[100] = "";
-	static char prj_path[100] = "";
+	static char prj_name[100];
+	static char prj_path[100];
 	ImGui::SetNextItemWidth(-FLT_MIN);
 
 	if(ImGui::Button("Create")) {
@@ -53,11 +56,15 @@ static void ShowProjectCreationWindow(bool* p_open) {
 	}
 	ImGui::SameLine();
 	if(ImGui::Button("Cancel")) *p_open = false;
+	if(prj_path_.size() != 0) strcpy(prj_path, prj_path_.c_str());
 
-	ImGui::InputText("##Project Name", prj_name, IM_ARRAYSIZE(prj_name));
-	ImGui::InputText("##Project Path", prj_path, IM_ARRAYSIZE(prj_path));
+	ImGui::InputText("##Project Name", prj_name, 100);
+	ImGui::InputText("##Project Path", prj_path, 100);
 	ImGui::SameLine();
-	if(ImGui::Button("Open")) show_file_browser_fn();
+	
+	if(ImGui::Button("Open")) {
+		if(prj_path_.size() == 0) show_file_browser = true;
+	}
 	ImGui::Separator();
 
 	ImGui::End();
@@ -138,6 +145,7 @@ static void ShowProjectManager(bool* p_open) {
 	ImGui::EndChild();
 	if (ImGui::Button("Open")) {
 		set_current_project_dir(Project[1] + '/' + Project[0]);
+		init_engine_windows();
 		*p_open = false;
 	}
 	ImGui::SameLine();
@@ -157,8 +165,7 @@ void ShowExampleAppDockSpace(bool* p_open)
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    if (opt_fullscreen)
-    {
+    if (opt_fullscreen) {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);
         ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -168,26 +175,23 @@ void ShowExampleAppDockSpace(bool* p_open)
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     }
-    else
-    {
+    else {
         dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
     }
 
     if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
         window_flags |= ImGuiWindowFlags_NoBackground;
 
-    if (!opt_padding)
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace Demo", p_open, window_flags);
-    if (!opt_padding)
-        ImGui::PopStyleVar();
+    if (!opt_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-    if (opt_fullscreen)
-        ImGui::PopStyleVar(2);
+    ImGui::Begin("DockSpace Demo", p_open, window_flags);
+
+    if (!opt_padding) ImGui::PopStyleVar();
+
+    if (opt_fullscreen) ImGui::PopStyleVar(2);
 
     ImGuiIO& io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-    {
+    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     }
@@ -258,6 +262,8 @@ int main(int argc, char** argv) {
 	// (optional) set browser properties
 	fileDialog.SetTitle("open project");
 
+	std::string fileToEdit;
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		
@@ -276,22 +282,24 @@ int main(int argc, char** argv) {
 		}
 
 		if(fileDialog.HasSelected()) {
-		    std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
+		    prj_path_ = fileDialog.GetSelected().string();
 		    fileDialog.ClearSelected();
+		    show_file_browser = false;
 		}
-
-		//...do other stuff like ImGui::Render();
 
 		SimpleOverlay();
 
 		if(show_text_editor) {
-			std::string fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
-			{
-				std::ifstream t(fileToEdit.c_str());
-				if (t.good()) {
-					std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-					editor.SetText(str);
+			if(prj_path_.size() == 0) {
+				fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
+				{
+					std::ifstream t(fileToEdit.c_str());
+					if (t.good()) {
+						std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+						editor.SetText(str);
+					}
 				}
+				prj_path_.clear();
 			}
 
 			ImGui::Begin("Vim-like editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
@@ -305,6 +313,7 @@ int main(int argc, char** argv) {
 
 			editor.Render("TextEditor");
 
+			std::ofstream (fileToEdit.c_str()) << editor.GetText();
 			ImGui::End();
 		}
 

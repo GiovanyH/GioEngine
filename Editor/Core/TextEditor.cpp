@@ -137,7 +137,9 @@ std::string TextEditor::GetText(const Coordinates & aStart, const Coordinates & 
 		}
 	}
 
-	return result;
+	result.pop_back();
+
+	return result; 
 }
 
 TextEditor::Coordinates TextEditor::GetActualCursorCoordinates() const {
