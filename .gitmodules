@@ -4,7 +4,6 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw
-[submodule "libs/ImGuiFileDialog"]
-	path = libs/ImGuiFileDialog
-	url = https://github.com/aiekick/ImGuiFileDialog
-	branch = Lib_Only
+[submodule "imgui-node-editor"]
+	path = imgui-node-editor
+	url = https://github.com/thedmd/imgui-node-editor
