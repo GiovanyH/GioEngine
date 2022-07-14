@@ -63,7 +63,7 @@ static void ShowProjectCreationWindow(bool* p_open) {
 	ImGui::SameLine();
 	
 	if(ImGui::Button("Open")) {
-		if(prj_path_.size() == 0) show_file_browser = true;
+		show_file_browser = true;
 	}
 	ImGui::Separator();
 
