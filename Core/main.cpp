@@ -22,6 +22,17 @@
 
 #include "imfilebrowser.h"
 
+// Better way of doing this later
+bool show_text_editor = false;
+bool show_file_browser = false;
+bool show_project_creation_window = false;
+
+#define show_text_editor_fn() (show_text_editor = true)
+#define show_file_browser_fn() (show_file_browser = true)
+#define show_project_creation_window_fn() (show_project_creation_window = true)
+
+
+
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
@@ -45,6 +56,8 @@ static void ShowProjectCreationWindow(bool* p_open) {
 
 	ImGui::InputText("##Project Name", prj_name, IM_ARRAYSIZE(prj_name));
 	ImGui::InputText("##Project Path", prj_path, IM_ARRAYSIZE(prj_path));
+	ImGui::SameLine();
+	if(ImGui::Button("Open")) show_file_browser_fn();
 	ImGui::Separator();
 
 	ImGui::End();
@@ -75,12 +88,12 @@ std::vector<std::string> get_project(std::string project) {
 	return project_vec;
 }
 
-static void ShowProjectManager(bool* p_open, bool* PJC_open, bool* txt_open) {
+static void ShowProjectManager(bool* p_open) {
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("ProjectTree", p_open, ImGuiWindowFlags_MenuBar)) {
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-		if (ImGui::MenuItem("Create")) *PJC_open = true;
+		if (ImGui::MenuItem("Create")) show_project_creation_window_fn();
 		if (ImGui::MenuItem("Reload")) reload_gioengine_projects();
                 if (ImGui::MenuItem("Close")) *p_open = false;
                 ImGui::EndMenu();
@@ -125,7 +138,6 @@ static void ShowProjectManager(bool* p_open, bool* PJC_open, bool* txt_open) {
 	ImGui::EndChild();
 	if (ImGui::Button("Open")) {
 		set_current_project_dir(Project[1] + '/' + Project[0]);
-		*txt_open = true;	
 		*p_open = false;
 	}
 	ImGui::SameLine();
@@ -183,13 +195,12 @@ void ShowExampleAppDockSpace(bool* p_open)
     ImGui::End();
 }
 
-
-
 int main(int argc, char** argv) {
 	glfwSetErrorCallback(glfw_error_callback);
 	if (!glfwInit()) return 1;
 
 	// Decide GL+GLSL versions
+	// Don't like this
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 	// GL ES 2.0 + GLSL 100
 	const char* glsl_version = "#version 100";
@@ -231,70 +242,21 @@ int main(int argc, char** argv) {
 	// TEXT EDITOR SAMPLE
 	TextEditor editor;
 	auto lang = TextEditor::RustLang::Rust();
-
-	// set your own known preprocessor symbols...
-	static const char* ppnames[] = { "NULL", "PM_REMOVE",
-		"ZeroMemory", "DXGI_SWAP_EFFECT_DISCARD", "D3D_FEATURE_LEVEL", "D3D_DRIVER_TYPE_HARDWARE", "WINAPI","D3D11_SDK_VERSION", "assert" };
-	// ... and their corresponding values
-	static const char* ppvalues[] = {
-		"#define NULL ((void*)0)",
-		"#define PM_REMOVE (0x0001)",
-		"Microsoft's own memory zapper function\n(which is a macro actually)\nvoid ZeroMemory(\n\t[in] PVOID  Destination,\n\t[in] SIZE_T Length\n); ",
-		"enum DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_DISCARD = 0",
-		"enum D3D_FEATURE_LEVEL",
-		"enum D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE  = ( D3D_DRIVER_TYPE_UNKNOWN + 1 )",
-		"#define WINAPI __stdcall",
-		"#define D3D11_SDK_VERSION (7)",
-		" #define assert(expression) (void)(                                                  \n"
-        "    (!!(expression)) ||                                                              \n"
-        "    (_wassert(_CRT_WIDE(#expression), _CRT_WIDE(__FILE__), (unsigned)(__LINE__)), 0) \n"
-        " )"
-		};
-
-	for (int i = 0; i < sizeof(ppnames) / sizeof(ppnames[0]); ++i) {
-		TextEditor::Identifier id;
-		id.mDeclaration = ppvalues[i];
-		lang.mPreprocIdentifiers.insert(std::make_pair(std::string(ppnames[i]), id));
-	}
-
-	// set your own identifiers
-	static const char* identifiers[] = {
-		"HWND", "HRESULT", "LPRESULT","D3D11_RENDER_TARGET_VIEW_DESC", "DXGI_SWAP_CHAIN_DESC","MSG","LRESULT","WPARAM", "LPARAM","UINT","LPVOID",
-		"ID3D11Device", "ID3D11DeviceContext", "ID3D11Buffer", "ID3D11Buffer", "ID3D10Blob", "ID3D11VertexShader", "ID3D11InputLayout", "ID3D11Buffer",
-		"ID3D10Blob", "ID3D11PixelShader", "ID3D11SamplerState", "ID3D11ShaderResourceView", "ID3D11RasterizerState", "ID3D11BlendState", "ID3D11DepthStencilState",
-		"IDXGISwapChain", "ID3D11RenderTargetView", "ID3D11Texture2D", "TextEditor" };
-	static const char* idecls[] = {
-		"typedef HWND_* HWND", "typedef long HRESULT", "typedef long* LPRESULT", "struct D3D11_RENDER_TARGET_VIEW_DESC", "struct DXGI_SWAP_CHAIN_DESC",
-		"typedef tagMSG MSG\n * Message structure","typedef LONG_PTR LRESULT","WPARAM", "LPARAM","UINT","LPVOID",
-		"ID3D11Device", "ID3D11DeviceContext", "ID3D11Buffer", "ID3D11Buffer", "ID3D10Blob", "ID3D11VertexShader", "ID3D11InputLayout", "ID3D11Buffer",
-		"ID3D10Blob", "ID3D11PixelShader", "ID3D11SamplerState", "ID3D11ShaderResourceView", "ID3D11RasterizerState", "ID3D11BlendState", "ID3D11DepthStencilState",
-		"IDXGISwapChain", "ID3D11RenderTargetView", "ID3D11Texture2D", "class TextEditor" };
-
-	for (int i = 0; i < sizeof(identifiers) / sizeof(identifiers[0]); ++i) {
-		TextEditor::Identifier id;
-		id.mDeclaration = std::string(idecls[i]);
-		lang.mIdentifiers.insert(std::make_pair(std::string(identifiers[i]), id));
-	}
-
+	
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	bool show_demo_window = false;
 	bool show_project_manager = true;
-	bool show_project_creation_window = false;
 	bool show_dockspace = true;
-	bool show_text_editor = false;
 	load_gioengine_projects();
 
 	ImGui::GetStyle().WindowRounding = 3.0f;
 
-	//...initialize rendering window and imgui
-
 	// create a file browser instance
-	ImGui::FileBrowser fileDialog;
+	ImGui::FileBrowser fileDialog(ImGuiFileBrowserFlags_SelectDirectory);
 
 	// (optional) set browser properties
-	fileDialog.SetTitle("title");
-	fileDialog.SetTypeFilters({ ".h", ".cpp" });
+	fileDialog.SetTitle("open project");
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -305,24 +267,15 @@ int main(int argc, char** argv) {
 
 		if(show_dockspace) ShowExampleAppDockSpace(&show_dockspace);
 		if(show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-		// better way of doing this
-		if(show_project_manager) ShowProjectManager(&show_project_manager, &show_project_creation_window, &show_text_editor);
+		if(show_project_manager) ShowProjectManager(&show_project_manager);
 		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
 
-		//...do other stuff like ImGui::NewFrame();
-
-		if(ImGui::Begin("dummy window"))
-		{
-		    // open file dialog when user clicks this button
-		    if(ImGui::Button("open file dialog"))
+		if(show_file_browser) {
 			fileDialog.Open();
+			fileDialog.Display();
 		}
-		ImGui::End();
 
-		fileDialog.Display();
-
-		if(fileDialog.HasSelected())
-		{
+		if(fileDialog.HasSelected()) {
 		    std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
 		    fileDialog.ClearSelected();
 		}
