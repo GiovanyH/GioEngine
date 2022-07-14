@@ -17,7 +17,7 @@ TextEditor::TextEditor()
 	, mOverwrite(false)
 	, mReadOnly(false)
 	, mWithinRender(false)
-	, mScrollToCursor(true)
+	, mScrollToCursor(false)
 	, mScrollToTop(false)
 	, mTextChanged(false)
 	, mColorizerEnabled(true)
@@ -43,7 +43,6 @@ TextEditor::TextEditor()
 		mRegexList.push_back(std::make_pair(std::regex(r.first, std::regex_constants::optimize), r.second));
 
 	Colorize();
-
 }
 
 TextEditor::~TextEditor() {
