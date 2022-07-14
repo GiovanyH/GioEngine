@@ -289,10 +289,11 @@ int main(int argc, char** argv) {
 
 		SimpleOverlay();
 
-		if(show_text_editor) {
+		if(show_text_editor && std::filesystem::exists(get_current_project_dir())) {
+			fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
 			if(prj_path_.size() == 0) {
-				fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
 				{
+					fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
 					std::ifstream t(fileToEdit.c_str());
 					if (t.good()) {
 						std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
