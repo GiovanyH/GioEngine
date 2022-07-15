@@ -1,17 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 
+# Creating project
 project(GioEngine VERSION 1.2.0)
+set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+# cmake config
+set(CONFIG_DIR ${PROJECT_DIR}/Core/Config)
+configure_file(${CONFIG_DIR}/Config.h.in ${CONFIG_DIR}/Config.h)
 
+# Compile the libs
 add_subdirectory("libs")
-add_subdirectory("Editor")
-add_subdirectory("Core")
 
-configure_file(Core/Config/Config.h.in ${PROJECT_DIR}/Core/Config/Config.h)
+# Compile part of the engine
+add_subdirectory("src")
 
 add_executable(GioEngine)
-include_directories(${PROJECT_DIR}/Editor/Core)
 target_sources(GioEngine PUBLIC ${PROJECT_DIR}/Core/main.cpp)
-target_link_libraries(GioEngine PUBLIC IMGUI Core ProjectManager Canvas)
-set_target_properties(GioEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+target_link_libraries(GioEngine PUBLIC Core ProjectManager Canvas)
