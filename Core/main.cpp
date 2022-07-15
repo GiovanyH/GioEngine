@@ -202,33 +202,35 @@ void ShowExampleAppDockSpace(bool* p_open)
 
 // Do this but with windows
 void canvas_drawing(bool *p_open) {
-	if (!ImGui::Begin("Example: Custom rendering", p_open)) {
-		ImGui::End();
-		return;
-	}
+	static ImVec2 scrolling(0.0f, 0.0f);
+	ImGui::SetNextWindowPos(scrolling);
+	ImGui::Begin("teste", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
+	ImGui::TextWrapped("cu");
+	ImGui::End();
+
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos);
+        ImGui::SetNextWindowSize(viewport->WorkSize);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+        window_flags |= ImGuiWindowFlags_NoBackground;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+	ImGui::PopStyleVar(3);
+	ImGui::Begin("canvas", p_open, window_flags);
 
 	static ImVector<ImVec2> points;
-	static ImVec2 scrolling(0.0f, 0.0f);
 	static bool opt_enable_grid = true;
 	static bool opt_enable_context_menu = true;
-	static bool adding_line = false;
 
 	ImGui::Checkbox("Enable grid", &opt_enable_grid);
 	ImGui::Checkbox("Enable context menu", &opt_enable_context_menu);
-	ImGui::Text("Mouse Left: drag to add lines,\nMouse Right: drag to scroll, click for context menu.");
 
-	// Typically you would use a BeginChild()/EndChild() pair to benefit from a clipping region + own scrolling.
-	// Here we demonstrate that this can be replaced by simple offsetting + custom drawing + PushClipRect/PopClipRect() calls.
-	// To use a child window instead we could use, e.g:
-	//      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));      // Disable padding
-	//      ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(50, 50, 50, 255));  // Set a background color
-	//      ImGui::BeginChild("canvas", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_NoMove);
-	//      ImGui::PopStyleColor();
-	//      ImGui::PopStyleVar();
-	//      [...]
-	//      ImGui::EndChild();
-
-	// Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
 	ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
 	ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
 	if (canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
@@ -248,18 +250,6 @@ void canvas_drawing(bool *p_open) {
 	const ImVec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
 	const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
-	// Add first and second point
-	if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-		points.push_back(mouse_pos_in_canvas);
-		points.push_back(mouse_pos_in_canvas);
-		adding_line = true;
-	}
-	if (adding_line) {
-		points.back() = mouse_pos_in_canvas;
-		if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
-		    adding_line = false;
-	}
-
 	// Pan (we use a zero mouse threshold when there's no context menu)
 	// You may decide to make that threshold dynamic based on whether the mouse is hovering something etc.
 	const float mouse_threshold_for_pan = opt_enable_context_menu ? -1.0f : 0.0f;
@@ -268,14 +258,11 @@ void canvas_drawing(bool *p_open) {
 		scrolling.y += io.MouseDelta.y;
 	}
 
-	// Context menu (under default mouse threshold)
+		// Context menu (under default mouse threshold)
 	ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
 	if (opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f)
 		ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
 	if (ImGui::BeginPopup("context")) {
-		if (adding_line)
-		    points.resize(points.size() - 2);
-		adding_line = false;
 		if (ImGui::MenuItem("Remove one", NULL, false, points.Size > 0)) { points.resize(points.size() - 2); }
 		if (ImGui::MenuItem("Remove all", NULL, false, points.Size > 0)) { points.clear(); }
 		ImGui::EndPopup();
@@ -290,11 +277,11 @@ void canvas_drawing(bool *p_open) {
 		for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
 		    draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
 	}
-	for (int n = 0; n < points.Size; n += 2)
-		draw_list->AddLine(ImVec2(origin.x + points[n].x, origin.y + points[n].y), ImVec2(origin.x + points[n + 1].x, origin.y + points[n + 1].y), IM_COL32(255, 255, 0, 255), 2.0f);
+
 	draw_list->PopClipRect();
 
 	ImGui::End();
+
 }
 
 int main(int argc, char** argv) {
@@ -341,10 +328,10 @@ int main(int argc, char** argv) {
 	TextEditor editor;
 	auto lang = TextEditor::RustLang::Rust();
 	
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
 
 	bool show_demo_window = false;
-	bool show_project_manager = true;
+	bool show_project_manager = false;
 	bool show_dockspace = false;
 	bool show_canvas = true;
 	load_gioengine_projects();
@@ -355,6 +342,9 @@ int main(int argc, char** argv) {
 	fileDialog.SetTitle("open project");
 
 	std::string fileToEdit;
+
+	ImVec2 penis;
+	penis.x = 0; penis.y = 200;
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
