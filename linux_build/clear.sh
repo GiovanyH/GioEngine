@@ -1,1 +1,1 @@
-find . -type f ! -name 'clear.sh' ! -name 'build.sh' -delete
+find . ! -name 'clear.sh' ! -name 'build.sh' -delete

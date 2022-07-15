@@ -23,10 +23,9 @@ target_sources(IMGUI
 
 target_include_directories(IMGUI
 	PUBLIC ${PROJECT_DIR}/Core
-	PUBLIC ${PROJECT_DIR}/Editor
+	PUBLIC ${PROJECT_DIR}/Editor/Canvas
 	PUBLIC ${PROJECT_DIR}/imgui-node-editor/examples
 	PUBLIC ${PROJECT_DIR}/imgui-node-editor/examples/application
-	PUBLIC ${PROJECT_DIR}
 	PUBLIC ${IMGUI_DIR}
 	PUBLIC ${IMGUI_DIR}/backends
 	PUBLIC ${SDL2_DIR}/include

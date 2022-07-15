@@ -21,6 +21,7 @@
 #include <GLFW/glfw3.h>
 
 #include "imfilebrowser.h"
+#include "Canvas.h"
 #include <math.h>
 
 // Better way of doing this later
@@ -159,15 +160,15 @@ static void ShowProjectManager(bool* p_open) {
     ImGui::End();
 }
 
-void ShowExampleAppDockSpace(bool* p_open)
+/*void ShowExampleAppDockSpace(bool* p_open)
 {
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
     static bool opt_fullscreen = true;
     static bool opt_padding = true;
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     if (opt_fullscreen) {
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::SetNextWindowViewport(viewport->ID);
@@ -198,39 +199,30 @@ void ShowExampleAppDockSpace(bool* p_open)
     }
 
     ImGui::End();
-}
+}*/
 
 // Do this but with windows
-void canvas_drawing(bool *p_open) {
-	static ImVec2 scrolling(0.0f, 0.0f);
-	ImGui::SetNextWindowPos(scrolling);
-	ImGui::Begin("teste", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
-	ImGui::TextWrapped("cu");
-	ImGui::End();
+/*void canvas_drawing(bool *p_open) {
+	ImGui::Begin("main", p_open, window_flags);
 
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-        window_flags |= ImGuiWindowFlags_NoBackground;
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-	ImGui::PopStyleVar(3);
-	ImGui::Begin("canvas", p_open, window_flags);
-
-	static ImVector<ImVec2> points;
 	static bool opt_enable_grid = true;
 	static bool opt_enable_context_menu = true;
 
 	ImGui::Checkbox("Enable grid", &opt_enable_grid);
 	ImGui::Checkbox("Enable context menu", &opt_enable_context_menu);
 
+	ImGui::End();
+
+	static ImVec2 scrolling(0.0f, 0.0f);
+	ImGui::SetNextWindowPos(scrolling);
+	ImGui::Begin("teste", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
+	ImGui::TextWrapped("cu");
+	ImGui::End();
+
+        ImGui::PopStyleVar(3);
+	ImGui::Begin("canvas", p_open, window_flags);
+
+	static ImVector<ImVec2> points;
 	ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
 	ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
 	if (canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
@@ -282,33 +274,18 @@ void canvas_drawing(bool *p_open) {
 
 	ImGui::End();
 
-}
+}*/
 
 int main(int argc, char** argv) {
 	glfwSetErrorCallback(glfw_error_callback);
 	if (!glfwInit()) return 1;
 
-	// Don't like this
-#if defined(IMGUI_IMPL_OPENGL_ES2)
 	// GL ES 2.0 + GLSL 100
 	const char* glsl_version = "#version 100";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#elif defined(__APPLE__)
-	// GL 3.2 + GLSL 150
-	const char* glsl_version = "#version 150";
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-	// GL 3.0 + GLSL 130
-	const char* glsl_version = "#version 130";
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
-
+	
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "GioEngine", NULL, NULL);
 	if (window == NULL) return 1;
 	glfwMakeContextCurrent(window);
@@ -332,8 +309,6 @@ int main(int argc, char** argv) {
 
 	bool show_demo_window = false;
 	bool show_project_manager = false;
-	bool show_dockspace = false;
-	bool show_canvas = true;
 	load_gioengine_projects();
 
 	ImGui::GetStyle().WindowRounding = 3.0f;
@@ -353,11 +328,9 @@ int main(int argc, char** argv) {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		if(show_dockspace) ShowExampleAppDockSpace(&show_dockspace);
 		if(show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 		if(show_project_manager) ShowProjectManager(&show_project_manager);
 		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
-		if(show_canvas) canvas_drawing(&show_canvas);
 
 		if(show_file_browser) {
 			fileDialog.Open();
@@ -399,7 +372,12 @@ int main(int argc, char** argv) {
 
 			std::ofstream (fileToEdit.c_str()) << editor.GetText();
 			ImGui::End();
+
+
 		}
+
+		gioengine_draw_canvas();
+
 
 		ImGui::Render();
 		int display_w, display_h;
