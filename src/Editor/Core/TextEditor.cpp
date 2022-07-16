@@ -17,7 +17,7 @@ TextEditor::TextEditor()
 	, mOverwrite(false)
 	, mReadOnly(false)
 	, mWithinRender(false)
-	, mScrollToCursor(false)
+	, mScrollToCursor(true)
 	, mScrollToTop(false)
 	, mTextChanged(false)
 	, mColorizerEnabled(true)
@@ -29,7 +29,7 @@ TextEditor::TextEditor()
 	, mCheckComments(true)
 	, mLastClick(-1.0f)
 	, mHandleKeyboardInputs(true)
-	, mIgnoreImGuiChild(false)
+	, mIgnoreImGuiChild(true)
 	, mStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) {
 	mPaletteBase = GetDarkPalette();
 	mLines.push_back(Line());

@@ -25,7 +25,7 @@
 #include <math.h>
 
 // Better way of doing this later
-bool show_text_editor = false;
+bool show_text_editor = true;
 bool show_project_creation_window = false;
 bool show_file_browser = false;
 
@@ -45,7 +45,7 @@ void init_engine_windows() {
 // Wide window with two buttons & one text field
 static void ShowProjectCreationWindow(bool* p_open) {
 	ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Project Creation", p_open);
+	CanvasBegin("Project Creation", p_open);
 
 	static char prj_name[100];
 	static char prj_path[100];
@@ -99,7 +99,7 @@ std::vector<std::string> get_project(std::string project) {
 
 static void ShowProjectManager(bool* p_open) {
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("ProjectTree", p_open, ImGuiWindowFlags_MenuBar)) {
+    if (CanvasBegin("ProjectTree", p_open, ImGuiWindowFlags_MenuBar)) {
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
 		if (ImGui::MenuItem("Create")) show_project_creation_window_fn();
@@ -160,122 +160,6 @@ static void ShowProjectManager(bool* p_open) {
     ImGui::End();
 }
 
-/*void ShowExampleAppDockSpace(bool* p_open)
-{
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    static bool opt_fullscreen = true;
-    static bool opt_padding = true;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    if (opt_fullscreen) {
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    }
-    else {
-        dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
-    }
-
-    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-        window_flags |= ImGuiWindowFlags_NoBackground;
-
-    if (!opt_padding) ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-    ImGui::Begin("DockSpace Demo", p_open, window_flags);
-
-    if (!opt_padding) ImGui::PopStyleVar();
-
-    if (opt_fullscreen) ImGui::PopStyleVar(2);
-
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-    }
-
-    ImGui::End();
-}*/
-
-// Do this but with windows
-/*void canvas_drawing(bool *p_open) {
-	ImGui::Begin("main", p_open, window_flags);
-
-	static bool opt_enable_grid = true;
-	static bool opt_enable_context_menu = true;
-
-	ImGui::Checkbox("Enable grid", &opt_enable_grid);
-	ImGui::Checkbox("Enable context menu", &opt_enable_context_menu);
-
-	ImGui::End();
-
-	static ImVec2 scrolling(0.0f, 0.0f);
-	ImGui::SetNextWindowPos(scrolling);
-	ImGui::Begin("teste", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
-	ImGui::TextWrapped("cu");
-	ImGui::End();
-
-        ImGui::PopStyleVar(3);
-	ImGui::Begin("canvas", p_open, window_flags);
-
-	static ImVector<ImVec2> points;
-	ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
-	ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
-	if (canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
-	if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
-	ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
-
-	// Draw border and background color
-	ImGuiIO& io = ImGui::GetIO();
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-	draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
-	draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
-
-	// This will catch our interactions
-	ImGui::InvisibleButton("canvas", canvas_sz, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
-	const bool is_hovered = ImGui::IsItemHovered(); // Hovered
-	const bool is_active = ImGui::IsItemActive();   // Held
-	const ImVec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
-	const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
-
-	// Pan (we use a zero mouse threshold when there's no context menu)
-	// You may decide to make that threshold dynamic based on whether the mouse is hovering something etc.
-	const float mouse_threshold_for_pan = opt_enable_context_menu ? -1.0f : 0.0f;
-	if (is_active && ImGui::IsMouseDragging(ImGuiMouseButton_Right, mouse_threshold_for_pan)) {
-		scrolling.x += io.MouseDelta.x;
-		scrolling.y += io.MouseDelta.y;
-	}
-
-		// Context menu (under default mouse threshold)
-	ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-	if (opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f)
-		ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
-	if (ImGui::BeginPopup("context")) {
-		if (ImGui::MenuItem("Remove one", NULL, false, points.Size > 0)) { points.resize(points.size() - 2); }
-		if (ImGui::MenuItem("Remove all", NULL, false, points.Size > 0)) { points.clear(); }
-		ImGui::EndPopup();
-	}
-
-	// Draw grid + all lines in the canvas
-	draw_list->PushClipRect(canvas_p0, canvas_p1, true);
-	if (opt_enable_grid) {
-		const float GRID_STEP = 64.0f;
-		for (float x = fmodf(scrolling.x, GRID_STEP); x < canvas_sz.x; x += GRID_STEP)
-		    draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y), IM_COL32(200, 200, 200, 40));
-		for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
-		    draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
-	}
-
-	draw_list->PopClipRect();
-
-	ImGui::End();
-
-}*/
-
 int main(int argc, char** argv) {
 	glfwSetErrorCallback(glfw_error_callback);
 	if (!glfwInit()) return 1;
@@ -286,7 +170,10 @@ int main(int argc, char** argv) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 	
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "GioEngine", NULL, NULL);
+	int window_w, window_h;
+	window_w = 1280; window_h = 720;
+	GLFWwindow *window = glfwCreateWindow(window_w, window_h, "GioEngine", NULL, NULL);
+	set_window_size(ImVec2(window_w, window_h));
 	if (window == NULL) return 1;
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
@@ -305,10 +192,8 @@ int main(int argc, char** argv) {
 	TextEditor editor;
 	auto lang = TextEditor::RustLang::Rust();
 	
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
-
 	bool show_demo_window = false;
-	bool show_project_manager = false;
+	bool show_project_manager = true;
 	load_gioengine_projects();
 
 	ImGui::GetStyle().WindowRounding = 3.0f;
@@ -359,9 +244,9 @@ int main(int argc, char** argv) {
 				prj_path_.clear();
 			}
 
-			ImGui::Begin("Vim-like editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar);
-
 			auto cpos = editor.GetCursorPosition();
+
+			CanvasBegin("Editor", nullptr);
 
 			ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 				editor.IsOverwrite() ? "Ovr" : "Ins",
@@ -382,6 +267,7 @@ int main(int argc, char** argv) {
 		ImGui::Render();
 		int display_w, display_h;
 		glfwGetFramebufferSize(window, &display_w, &display_h);
+		set_window_size(ImVec2(display_w, display_h));
 		glViewport(0, 0, display_w, display_h);
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);

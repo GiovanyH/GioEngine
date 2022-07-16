@@ -1,23 +1,58 @@
 #include "Canvas.h"
 #include <math.h>
+#include <iostream>
+
+bool is_scrolling = false;
+ImVec2 old_scrolling;
+ImVec2 out_scrolling;
+ImVec2 window_size;
+
+ImVec2 get_window_size() {
+	return window_size;
+}
+
+void set_window_size(ImVec2 size) {
+	window_size = size;
+}
+
+ImVec2 get_canvas_scrolling() {
+	return out_scrolling;
+}
+
+void set_canvas_scrolling(ImVec2 value) {
+	out_scrolling = value;
+}
+
 ImGuiWindowFlags get_canvas_flags() {
-	ImGuiWindowFlags canflas = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	ImGuiWindowFlags canflas = ImGuiWindowFlags_MenuBar;
 	canflas |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         canflas |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
 	return canflas;
 }
 
+bool CanvasBegin(std::string title, bool *p_open, ImGuiWindowFlags flags) {
+	if(is_scrolling) {
+		ImGui::SetNextWindowPos(ImVec2(get_canvas_scrolling().x + old_scrolling.x,
+				get_canvas_scrolling().y + old_scrolling.y));
+	}
+	bool ret = ImGui::Begin(title.c_str(), p_open, flags);
+	if(!is_scrolling) {
+		old_scrolling = ImVec2(ImGui::GetWindowPos().x - get_canvas_scrolling().x,
+				ImGui::GetWindowPos().y - get_canvas_scrolling().y);
+	}
+
+	return ret;
+}
+
 // In the end of mainloop render
 void gioengine_draw_canvas() {
-	static ImVec2 scrolling(0.0f, 0.0f);
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImVec2 scrolling = get_canvas_scrolling();
 
 	bool opt_enable_context_menu = false;
 
-	ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+        ImGui::SetNextWindowSize(get_window_size());
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
@@ -25,9 +60,7 @@ void gioengine_draw_canvas() {
 
 	ImGui::PopStyleVar(3);
 
-	bool sla = true;
-
-	ImGui::Begin("canvas", &sla, get_canvas_flags());
+	ImGui::Begin("canvas", nullptr, get_canvas_flags());
 
 	ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
 	ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
@@ -53,7 +86,9 @@ void gioengine_draw_canvas() {
 	if (is_active && ImGui::IsMouseDragging(ImGuiMouseButton_Right, mouse_threshold_for_pan)) {
 		scrolling.x += io.MouseDelta.x;
 		scrolling.y += io.MouseDelta.y;
+		is_scrolling = true;
 	}
+	else is_scrolling = false;
 
 	ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
 	if (opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f)
@@ -76,4 +111,6 @@ void gioengine_draw_canvas() {
 	draw_list->PopClipRect();
 
 	ImGui::End();
+
+	set_canvas_scrolling(scrolling);
 }
