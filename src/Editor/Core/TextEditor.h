@@ -144,7 +144,7 @@ public:
 	std::string GetSelectedText() const;
 	std::string GetCurrentLineText()const;
 
-	char *GetCurrentMode();
+	const char *GetCurrentMode();
 
 	int GetTotalLines() const { return (int)mLines.size(); }
 	bool IsOverwrite() const { return mOverwrite; }
@@ -273,8 +273,12 @@ private:
 	std::string GetWordAt(const Coordinates& aCoords) const;
 	ImU32 GetGlyphColor(const Glyph& aGlyph) const;
 
-	void HandleKeyboardInputs();
+	enum Modes HandleKeyboardInputs();
 	void Render();
+	enum Modes handleCurrentMode();
+	enum Modes handleNormal(bool one = false);
+	enum Modes handleInsert(bool one = false);
+	enum Modes handleVisual();
 
 	float mLineSpacing;
 	Lines mLines;

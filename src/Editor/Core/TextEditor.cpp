@@ -95,7 +95,7 @@ static inline int ImTextCharToUtf8(char *buf, int buf_size, unsigned int c) {
 }
 
 
-char *TextEditor::GetCurrentMode() {
+const char *TextEditor::GetCurrentMode() {
 	switch(current_mode) {
 		case 0:
 			return "Normal";
@@ -668,89 +668,30 @@ void TextEditor::ColorizeInternal() {
 	}
 }
 
-void TextEditor::HandleKeyboardInputs() {
-	ImGuiIO& io = ImGui::GetIO();
-	auto shift = io.KeyShift;
-	auto ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
-	auto alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
+#include "../Modes/Insert.cpp"
+#include "../Modes/Normal.cpp"
+#include "../Modes/Visual.cpp"
 
+#define handle_mode(mode) handle##mode()
+
+TextEditor::Modes TextEditor::handleCurrentMode() {
+	if(current_mode == Normal) return handle_mode(Normal);
+	else if(current_mode == Insert) return handle_mode(Insert);
+	else if(current_mode == Visual) return handle_mode(Visual);
+}
+
+TextEditor::Modes TextEditor::HandleKeyboardInputs() {
+	ImGuiIO& io = ImGui::GetIO();
 	if (ImGui::IsWindowFocused()) {
 		if (ImGui::IsWindowHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
 
 		io.WantCaptureKeyboard = true;
 		io.WantTextInput = true;
 
-		if(current_mode == Normal) {
-			if(!IsReadOnly() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_I))) {
-				current_mode = Insert;
-				return;
-			}
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V))) {
-				current_mode = Visual;
-				return;
-			}
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
-				MoveRight(1);
-				Backspace();
-			}
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_H))) MoveLeft(1);
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_L))) MoveRight(1);
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_J))) MoveDown(1);
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_K))) MoveUp(1);
-		}
-		if(current_mode == Insert) {
-			if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z))) Undo();
-			if (!IsReadOnly() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) current_mode = Normal;
-			else if (!IsReadOnly() && !ctrl && !shift && alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace))) Undo();
-			else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Y))) Redo();
-			else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))) MoveUp(1, shift);
-			else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow))) MoveDown(1, shift);
-			else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))) MoveLeft(1, shift);
-			else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))) MoveRight(1, shift);
-			else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp))) MoveUp(GetPageSize() - 4, shift);
-			else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown))) MoveDown(GetPageSize() - 4, shift);
-			else if (!alt && ctrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home))) MoveTop(shift);
-			else if (ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End))) MoveBottom(shift);
-			else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home))) MoveHome(shift);
-			else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End))) MoveEnd(shift);
-			else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) Delete();
-			else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace))) Backspace();
-			else if (!ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert))) mOverwrite ^= true;
-			else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert))) Copy();
-			else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C))) Copy();
-			else if (!IsReadOnly() && !ctrl && shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert))) Paste();
-			else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V))) Paste();
-			else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) Cut();
-			else if (!ctrl && shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) Cut();
-			else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A))) SelectAll();
-			else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) EnterCharacter('\n', false);
-			else if (!IsReadOnly() && !ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab))) EnterCharacter('\t', shift);
-
-			if (!IsReadOnly() && !io.InputQueueCharacters.empty()) {
-				for (int i = 0; i < io.InputQueueCharacters.Size; i++) {
-					auto c = io.InputQueueCharacters[i];
-					if (c != 0 && (c == '\n' || c >= 32)) EnterCharacter(c, shift);
-				}
-				io.InputQueueCharacters.resize(0);
-			}
-		}
-		if(current_mode == Visual) {
-			if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_H))) MoveLeft(1, true);
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_L))) MoveRight(1, true);
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_J))) MoveDown(1, true);
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_K))) MoveUp(1, true);
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
-				Backspace();
-				current_mode = Normal;
-				return;
-			}
-			else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V))) {
-				current_mode = Normal;
-				MoveLeft(0, false);
-				return;
-			}
-		}
+		return handleCurrentMode();
 	}
+
+	return current_mode;
 }
 
 void TextEditor::Render()
@@ -943,7 +884,7 @@ void TextEditor::Render(const char* aTitle, const ImVec2& aSize, bool aBorder) {
 	if (!mIgnoreImGuiChild) ImGui::BeginChild(aTitle, aSize, aBorder, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove);
 
 	if (mHandleKeyboardInputs) {
-		HandleKeyboardInputs();
+		current_mode = HandleKeyboardInputs();
 		ImGui::PushAllowKeyboardFocus(true);
 	}
 

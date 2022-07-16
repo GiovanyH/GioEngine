@@ -246,7 +246,7 @@ int main(int argc, char** argv) {
 
 			auto cpos = editor.GetCursorPosition();
 
-			CanvasBegin("Editor", nullptr);
+			CanvasBegin("Editor", nullptr, ImGuiWindowFlags_MenuBar);
 
 			ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 				editor.IsOverwrite() ? "Ovr" : "Ins",
