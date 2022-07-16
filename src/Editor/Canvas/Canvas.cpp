@@ -72,9 +72,9 @@ void gioengine_draw_canvas() {
 	ImGuiIO& io = ImGui::GetIO();
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	draw_list->AddRectFilled(canvas_p0, canvas_p1,
-			IM_COL32(50, 50, 50, 255));
+			IM_COL32(50, 48, 47, 255));
 	draw_list->AddRect(canvas_p0, canvas_p1,
-			IM_COL32(255, 255, 255, 255));
+			IM_COL32(233, 217, 176, 255));
 
 	ImGui::InvisibleButton("canvas", canvas_sz, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
 	const bool is_hovered = ImGui::IsItemHovered(); // Hovered
