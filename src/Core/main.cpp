@@ -277,7 +277,8 @@ int main(int argc, char** argv) {
 	style.LogSliderDeadzone                 = 4;
 	style.TabRounding                       = 2;	
 
-	io.Fonts->AddFontFromFileTTF("../style/fonts/Ubuntu-Bold.ttf", 17);
+	ImFont * regular = io.Fonts->AddFontFromFileTTF("../style/fonts/Ubuntu-Bold.ttf", 17);
+	ImFont * code = io.Fonts->AddFontFromFileTTF("../style/fonts/SpaceMono-Bold.ttf", 19); 
 
 	ImGui::FileBrowser fileDialog(ImGuiFileBrowserFlags_SelectDirectory);
 	fileDialog.SetTitle("open project");
@@ -293,6 +294,8 @@ int main(int argc, char** argv) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		ImGui::PushFont(regular);
 
 		if(show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 		if(show_project_manager) ShowProjectManager(&show_project_manager);
@@ -310,6 +313,8 @@ int main(int argc, char** argv) {
 		}
 
 		SimpleOverlay();
+
+		ImGui::PushFont(code);
 
 		if(show_text_editor && std::filesystem::exists(get_current_project_dir())) {
 			fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
@@ -342,8 +347,11 @@ int main(int argc, char** argv) {
 
 		}
 
+		ImGui::PopFont();
+
 		gioengine_draw_canvas();
 
+		ImGui::PopFont();
 
 		ImGui::Render();
 		int display_w, display_h;

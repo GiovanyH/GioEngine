@@ -4,6 +4,7 @@
 #include <regex>
 #include <cmath>
 #include <stdio.h>
+#include <iostream>
 
 #include "Config.h"
 #include "TextEditor.h"
@@ -694,9 +695,8 @@ TextEditor::Modes TextEditor::HandleKeyboardInputs() {
 	return current_mode;
 }
 
-void TextEditor::Render()
-{
-	const float fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr).x;
+void TextEditor::Render() {
+	const float fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, " ", nullptr, nullptr).x;
 	mCharAdvance = ImVec2(fontSize, ImGui::GetTextLineHeightWithSpacing() * mLineSpacing);
 
 	for (int i = 0; i < (int)PaletteIndex::Max; ++i) {
@@ -793,7 +793,15 @@ void TextEditor::Render()
 							}
 						}
 						ImVec2 cstart(textScreenPos.x + cx, lineStartScreenPos.y);
-						ImVec2 cend(textScreenPos.x + cx + width, lineStartScreenPos.y + mCharAdvance.y);
+						ImVec2 cend(textScreenPos.x + cx, lineStartScreenPos.y + mCharAdvance.y);
+
+						if(current_mode == Insert) {
+							cend.x += width;
+						}
+						else {
+							cstart.x -= width;
+						}
+						
 						drawList->AddRectFilled(cstart, cend, mPalette[(int)PaletteIndex::Cursor]);
 						if (elapsed > 800) mStartTime = timeEnd;
 					}

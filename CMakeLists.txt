@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Creating project
-project(GioEngine VERSION 1.2.0)
+project(GioEngine VERSION 1.3.0)
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # cmake config
