@@ -12,7 +12,22 @@ The Engine may be bigger and have more features in the future, but the central i
 
 ----
 
+![Idea](https://github.com/GiovanyH/GioEngine/blob/main/Idea.png)
+
 #### Current version: 1.3 / Sexo Horse
+
+This version can be defined as the implementation of some features
+
+ - Working console that compiles the code
+ - Basic API methods
+ - Identical Vim movement key bindings
+ - Workspaces
+ - Editor obfuscation with nodes
+
+#### Previos versions:
+
+ - 1.2 | Atumalaka
+    - Implementing IMGUI stuff
 
 #### Linux build:
 clone the repository  
