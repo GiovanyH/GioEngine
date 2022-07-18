@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCanvas.a CMakeFiles/Canvas.dir/Canvas/Canvas.cpp.o
+/usr/bin/ranlib libCanvas.a

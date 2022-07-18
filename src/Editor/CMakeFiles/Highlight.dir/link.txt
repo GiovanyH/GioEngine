@@ -1,0 +1,2 @@
+/usr/bin/ar qc libHighlight.a CMakeFiles/Highlight.dir/Color/Color.cpp.o
+/usr/bin/ranlib libHighlight.a

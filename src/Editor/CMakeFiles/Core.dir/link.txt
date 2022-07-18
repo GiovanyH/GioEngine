@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCore.a CMakeFiles/Core.dir/Core/TextEditor.cpp.o
+/usr/bin/ranlib libCore.a
