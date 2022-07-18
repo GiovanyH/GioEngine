@@ -1,6 +1,6 @@
 CXX = emcc
 OUTPUT = imgui.js
-IMGUI_DIR:=../../imgui
+IMGUI_DIR:=../imgui
 
 SOURCES = main.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
