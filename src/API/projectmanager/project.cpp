@@ -15,7 +15,7 @@
 #ifdef _WIN32
 #endif
 
-#include "Project.h"
+#include "project.h"
 
 using namespace ghc;
 

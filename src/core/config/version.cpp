@@ -1,6 +1,6 @@
 #include "imgui.h"
 #include <string>
-#include "Config.h"
+#include "config.h"
 
 static void SimpleOverlay() {
 	bool p_open = true;

@@ -1,4 +1,4 @@
-#include "Canvas.h"
+#include "canvas.h"
 #include <math.h>
 #include <iostream>
 

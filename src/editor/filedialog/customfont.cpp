@@ -1,4 +1,4 @@
-#include "CustomFont.h"
+#include "customfont.h"
 
 static const char IGFD_compressed_data_base85[3950+1] = 
     "7])#######Dl_0_'/###O@?>#+lQS%Ql#v#X^@iFm,6TH$&(##/i(##[[S=B7Rm.L:^Ee-]br-$KQshF=I&##'h$##<L]w',>p0FSQM:L3/Uw02)[w'o;<RDQjUw#IPH_&8Jq-$Mu@['"

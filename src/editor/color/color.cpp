@@ -1,6 +1,6 @@
 #include <limits>
-#include "TextEditor.h"
-#include "Config.h"
+#include "texteditor.h"
+#include "config.h"
 
 void TextEditor::SetColorizerEnable(bool aValue) {
 	mColorizerEnabled = aValue;

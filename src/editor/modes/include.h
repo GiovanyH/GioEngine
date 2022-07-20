@@ -1,2 +1,2 @@
 #include "imgui.h"
-#include "../Core/TextEditor.h"
+#include "../core/texteditor.h"

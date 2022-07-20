@@ -7,8 +7,8 @@ set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 
 # cmake config
-set(CONFIG_DIR ${PROJECT_DIR}/Core/Config)
-configure_file(${CONFIG_DIR}/Config.h.in ${CONFIG_DIR}/Config.h)
+set(CONFIG_DIR ${PROJECT_DIR}/core/config)
+configure_file(${CONFIG_DIR}/config.h.in ${CONFIG_DIR}/config.h)
 
 # Compile the libs
 add_subdirectory("libs")
@@ -17,5 +17,11 @@ add_subdirectory("libs")
 add_subdirectory("src")
 
 add_executable(GioEngine)
-target_sources(GioEngine PUBLIC ${PROJECT_DIR}/Core/main.cpp)
-target_link_libraries(GioEngine PUBLIC Core ProjectManager Canvas ImGuiFileDialog)
+target_sources(GioEngine PUBLIC ${PROJECT_DIR}/core/main.cpp)
+target_include_directories(GioEngine PUBLIC
+	libs/filesystem/include/
+	src/API/
+	src/editor/filedialog/imguifiledialog/
+	src/editor/canvas/
+	)
+target_link_libraries(GioEngine PUBLIC core projectmanager canvas filedialog)

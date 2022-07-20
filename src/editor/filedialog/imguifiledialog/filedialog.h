@@ -856,7 +856,7 @@ ImGuiFontStudio is using also ImGuiFileDialog.
 #define IMGUIFILEDIALOG_VERSION "v0.6.5"
 
 #ifndef CUSTOM_IMGUIFILEDIALOG_CONFIG
-#include "ImGuiFileDialogConfig.h"
+#include "filedialog_config.h"
 #else // CUSTOM_IMGUIFILEDIALOG_CONFIG
 #include CUSTOM_IMGUIFILEDIALOG_CONFIG
 #endif // CUSTOM_IMGUIFILEDIALOG_CONFIG

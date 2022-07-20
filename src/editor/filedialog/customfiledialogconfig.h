@@ -1,7 +1,7 @@
 #pragma once
 
 //#include <imgui.h>
-#include <CustomFont.h>
+#include <customfont.h>
 
 // uncomment and modify defines under for customize ImGuiFileDialog
 

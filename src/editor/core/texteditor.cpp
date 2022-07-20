@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "Config.h"
-#include "TextEditor.h"
+#include "config.h"
+#include "texteditor.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
@@ -669,9 +669,9 @@ void TextEditor::ColorizeInternal() {
 	}
 }
 
-#include "../Modes/Insert.cpp"
-#include "../Modes/Normal.cpp"
-#include "../Modes/Visual.cpp"
+#include "../modes/insert.cpp"
+#include "../modes/normal.cpp"
+#include "../modes/visual.cpp"
 
 #define handle_mode(mode) handle##mode()
 
