@@ -1,4 +1,4 @@
-![Logo](https://github.com/GiovanyH/GioEngine/blob/main/Logo.png)  
+![Logo](https://github.com/GiovanyH/GioEngine/blob/main/style/image/logo.png)  
 =====
 
 #### GioEngine
@@ -12,9 +12,9 @@ The Engine may be bigger and have more features in the future, but the central i
 
 ----
 
-![Idea](https://github.com/GiovanyH/GioEngine/blob/main/Idea.png)
+![Idea](https://github.com/GiovanyH/GioEngine/blob/main/style/image/idea.png)
 
-#### Current version: 1.3 / Sexo Horse
+#### Current version: 1.3.0 / Sexo Horse
 
 This version can be defined as the implementation of some features
 
