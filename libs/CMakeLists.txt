@@ -2,6 +2,8 @@ cmake_policy(SET CMP0077 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 add_subdirectory(glfw)
+add_subdirectory(filesystem)
+add_subdirectory(string-view-lite)
 
 #================== IMGUI ================= 
 
@@ -24,11 +26,8 @@ target_sources(IMGUI
 target_include_directories(IMGUI
 	PUBLIC ${PROJECT_DIR}/Core
 	PUBLIC ${PROJECT_DIR}/Editor/Canvas
-	PUBLIC ${PROJECT_DIR}/imgui-node-editor/examples
-	PUBLIC ${PROJECT_DIR}/imgui-node-editor/examples/application
 	PUBLIC ${IMGUI_DIR}
 	PUBLIC ${IMGUI_DIR}/backends
-	PUBLIC ${SDL2_DIR}/include
 	)
 
 if(USE_GLES OR RASPBIAN)

@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(CMAKE_CXX_STANDARD 11)
 # Creating project
 project(GioEngine VERSION 1.3.0)
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 
 # cmake config
 set(CONFIG_DIR ${PROJECT_DIR}/Core/Config)
@@ -16,4 +18,4 @@ add_subdirectory("src")
 
 add_executable(GioEngine)
 target_sources(GioEngine PUBLIC ${PROJECT_DIR}/Core/main.cpp)
-target_link_libraries(GioEngine PUBLIC Core ProjectManager Canvas)
+target_link_libraries(GioEngine PUBLIC Core ProjectManager Canvas ImGuiFileDialog)

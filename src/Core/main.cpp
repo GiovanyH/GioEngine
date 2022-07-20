@@ -15,9 +15,12 @@
 #endif
 #include <GLFW/glfw3.h>
 
-#include "imfilebrowser.h"
+#include "ghc/filesystem.hpp"
+#include "ImGuiFileDialog.h"
 #include "Canvas.h"
 #include <math.h>
+
+using namespace ghc;
 
 // Better way of doing this later
 bool show_text_editor = true;
@@ -277,8 +280,9 @@ int main(int argc, char** argv) {
 	ImFont * regular = io.Fonts->AddFontFromFileTTF("../style/fonts/Ubuntu-Bold.ttf", 17);
 	ImFont * code = io.Fonts->AddFontFromFileTTF("../style/fonts/SpaceMono-Bold.ttf", 19); 
 
-	ImGui::FileBrowser fileDialog(ImGuiFileBrowserFlags_SelectDirectory);
-	fileDialog.SetTitle("open project");
+	//ImGui::FileBrowser fileDialog(ImGuiFileBrowserFlags_SelectDirectory);
+	//fileDialog.SetTitle("open project");
+	ImGuiFileDialog fileDialog;
 
 	std::string fileToEdit;
 
@@ -299,21 +303,29 @@ int main(int argc, char** argv) {
 		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
 
 		if(show_file_browser) {
-			fileDialog.Open();
-			fileDialog.Display();
+			fileDialog.OpenDialog("ChooseDirDlgKey", "Choose a Directory", nullptr, ".");
 		}
 
-		if(fileDialog.HasSelected()) {
-		    prj_path_ = fileDialog.GetSelected().string();
-		    fileDialog.ClearSelected();
-		    show_file_browser = false;
+		if(fileDialog.Display("ChooseDirDlgKey")) {
+			if (fileDialog.IsOk()) {
+				prj_path_ = fileDialog.GetCurrentPath();
+			}
+
+			fileDialog.Close();
+			show_file_browser = false;
 		}
+
+		/*if(fileDialog.HasSelected()) {
+		    //prj_path_ = fileDialog.GetSelected().string();
+		    //fileDialog.ClearSelected();
+		    show_file_browser = false;
+		}*/
 
 		SimpleOverlay();
 
 		ImGui::PushFont(code);
 
-		if(show_text_editor && std::filesystem::exists(get_current_project_dir())) {
+		if(show_text_editor && filesystem::exists(get_current_project_dir())) {
 			fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
 			if(prj_path_.size() == 0) {
 				{

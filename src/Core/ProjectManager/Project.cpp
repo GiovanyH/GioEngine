@@ -4,7 +4,8 @@
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
-#include <filesystem>
+
+#include "ghc/filesystem.hpp"
 
 #include <unistd.h>
 #ifdef linux
@@ -16,6 +17,8 @@
 
 #include "Project.h"
 
+using namespace ghc;
+
 std::vector<std::string> UserProjects;
 struct passwd *pw = getpwuid(getuid());
 std::string homedir = pw->pw_dir;
@@ -24,11 +27,11 @@ std::string gioengine_directory = homedir + "/.GioEngine";
 std::string current_project_directory;
 
 void create_gioengine_directory() {
-	std::filesystem::create_directory(gioengine_directory);
+	filesystem::create_directory(gioengine_directory);
 }
 
 void load_gioengine_directory() {
-	if(!std::filesystem::exists(gioengine_directory)) create_gioengine_directory();
+	if(!filesystem::exists(gioengine_directory)) create_gioengine_directory();
 }
 
 void load_gioengine_projects() {
@@ -65,7 +68,7 @@ void create_gioengine_project(const char *project_name, const char *project_dire
 	user_projects_file.close();
 
 	std::string project_path = std::string(project_directory);
-	std::filesystem::create_directories(project_path);
+	filesystem::create_directories(project_path);
 
 	system((std::string("cargo new ") + project_path + '/' + project_name).c_str());
 }

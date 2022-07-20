@@ -4,3 +4,6 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw
+[submodule "libs/filesystem"]
+	path = libs/filesystem
+	url = https://github.com/gulrak/filesystem
