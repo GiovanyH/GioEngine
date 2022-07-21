@@ -9,12 +9,20 @@ add_library(filedialog STATIC)
 
 set(DIALOG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nativefiledialog)
 
+if (UNIX)
 target_sources(filedialog
 	PRIVATE
 		${DIALOG_DIR}/src/nfd_common.c
 		${DIALOG_DIR}/src/nfd_zenity.c
 	)
-
+endif (UNIX)
+if (WIN32)
+target_sources(filedialog
+	PRIVATE
+		${DIALOG_DIR}/src/nfd_common.c
+		${DIALOG_DIR}/src/nfd_win.c
+	)
+endif (WIN32)
 target_include_directories(filedialog
 		PUBLIC ${DIALOG_DIR}/src/include
 		PUBLIC ${DIALOG_DIR}/src/
