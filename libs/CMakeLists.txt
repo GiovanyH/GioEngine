@@ -2,9 +2,23 @@ cmake_policy(SET CMP0077 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 add_subdirectory(glfw)
-add_subdirectory(filesystem)
 add_subdirectory(string-view-lite)
 
+#================== FILEDIALOG ================= 
+add_library(filedialog STATIC)
+
+set(DIALOG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nativefiledialog)
+
+target_sources(filedialog
+	PRIVATE
+		${DIALOG_DIR}/src/nfd_common.c
+		${DIALOG_DIR}/src/nfd_zenity.c
+	)
+
+target_include_directories(filedialog
+		PUBLIC ${DIALOG_DIR}/src/include
+		PUBLIC ${DIALOG_DIR}/src/
+	)
 #================== IMGUI ================= 
 
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)

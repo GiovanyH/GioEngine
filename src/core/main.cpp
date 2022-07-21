@@ -16,13 +16,12 @@
 #include <GLFW/glfw3.h>
 
 #include "ghc/filesystem.hpp"
-#include "filedialog.h"
+#include "nfd.h"
 #include "canvas.h"
 #include <math.h>
 
 using namespace ghc;
 
-// Better way of doing this later
 bool show_text_editor = true;
 bool show_project_creation_window = false;
 bool show_file_browser = false;
@@ -282,7 +281,6 @@ int main(int argc, char** argv) {
 
 	//ImGui::FileBrowser fileDialog(ImGuiFileBrowserFlags_SelectDirectory);
 	//fileDialog.SetTitle("open project");
-	ImGuiFileDialog fileDialog;
 
 	std::string fileToEdit;
 
@@ -303,24 +301,22 @@ int main(int argc, char** argv) {
 		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
 
 		if(show_file_browser) {
-			fileDialog.OpenDialog("ChooseDirDlgKey", "Choose a Directory", nullptr, ".");
-		}
-
-		if(fileDialog.Display("ChooseDirDlgKey")) {
-			if (fileDialog.IsOk()) {
-				prj_path_ = fileDialog.GetCurrentPath();
+			nfdchar_t *outPath = NULL;
+			nfdresult_t result = NFD_PickFolder( NULL, &outPath );
+			if (result == NFD_OKAY) {
+				prj_path_ = outPath;
+				free(outPath);
+				show_file_browser = false;
 			}
-
-			fileDialog.Close();
-			show_file_browser = false;
+			else if (result == NFD_CANCEL) {
+				show_file_browser = false;
+			}
+			else {
+				printf("Error: %s\n", NFD_GetError() );
+			}
 		}
 
-		/*if(fileDialog.HasSelected()) {
-		    //prj_path_ = fileDialog.GetSelected().string();
-		    //fileDialog.ClearSelected();
-		    show_file_browser = false;
-		}*/
-
+		
 		SimpleOverlay();
 
 		ImGui::PushFont(code);
