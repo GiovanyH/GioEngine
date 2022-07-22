@@ -1,4 +1,0 @@
-/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build/CMakeFiles/IMGUI.dir
-/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build/CMakeFiles/main.dir
-/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build/CMakeFiles/edit_cache.dir
-/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build/CMakeFiles/rebuild_cache.dir
