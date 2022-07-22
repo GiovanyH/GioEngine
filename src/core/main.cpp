@@ -18,6 +18,8 @@
 #include "ghc/filesystem.hpp"
 #include "nfd.h"
 #include "canvas.h"
+//#include "editor.h"
+//#include "config_app.h"
 #include <math.h>
 
 using namespace ghc;

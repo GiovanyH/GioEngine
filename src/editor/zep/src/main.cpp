@@ -8,8 +8,6 @@
 
 #include <filesystem>
 
-#include "config_app.h"
-
 namespace fs = std::filesystem;
 
 #include "editor.h"
@@ -58,10 +56,6 @@ int main(int, char**)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // Note: Adjust font size as appropriate!
-	auto fontPath = fs::path(APP_ROOT) / "run_tree" / "fonts" / "Cousine-Regular.ttf";
-    io.Fonts->AddFontFromFileTTF(fontPath.string().c_str(), 26);
-
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -80,7 +74,7 @@ int main(int, char**)
         {
             // Called once the fonts/device is guaranteed setup
             zep_init(Zep::NVec2f(1.0f, 1.0f));
-            zep_load(Zep::ZepPath(APP_ROOT) / "src" / "main.cpp");
+            zep_load(Zep::ZepPath(".") / "src" / "main.cpp");
             z_init = true;
         }
 
