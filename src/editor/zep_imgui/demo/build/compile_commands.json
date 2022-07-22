@@ -1,0 +1,47 @@
+[
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIC -std=gnu++17 -o CMakeFiles/IMGUI.dir/imgui/imgui_demo.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_demo.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_demo.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIC -std=gnu++17 -o CMakeFiles/IMGUI.dir/imgui/imgui_draw.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_draw.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_draw.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIC -std=gnu++17 -o CMakeFiles/IMGUI.dir/imgui/imgui_tables.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_tables.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_tables.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIC -std=gnu++17 -o CMakeFiles/IMGUI.dir/imgui/imgui_widgets.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_widgets.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui_widgets.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIC -std=gnu++17 -o CMakeFiles/IMGUI.dir/imgui/imgui.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/imgui.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIC -std=gnu++17 -o CMakeFiles/IMGUI.dir/imgui/backends/imgui_impl_opengl3.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends/imgui_impl_opengl3.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends/imgui_impl_opengl3.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIC -std=gnu++17 -o CMakeFiles/IMGUI.dir/imgui/backends/imgui_impl_glfw.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends/imgui_impl_glfw.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends/imgui_impl_glfw.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/zep/include -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/include -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIE -std=gnu++17 -o CMakeFiles/main.dir/src/main.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/src/main.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/src/main.cpp"
+},
+{
+  "directory": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build",
+  "command": "/usr/bin/c++ -DZEP_FEATURE_CPP_FILE_SYSTEM -DZEP_SINGLE_HEADER=1 -DZEP_USE_SDL -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/build -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/zep/include -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/include -I/Core -I/Editor/Canvas -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui -I/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/imgui/backends -fPIE -std=gnu++17 -o CMakeFiles/main.dir/src/editor.cpp.o -c /home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/src/editor.cpp",
+  "file": "/home/giovany/Development/GioEngine/src/editor/zep_imgui/demo/src/editor.cpp"
+}
+]
