@@ -4,7 +4,6 @@
 #include "imgui_impl_opengl3.h"
 #include <fstream>
 #include <streambuf>
-#include "texteditor.h"
 #include "config/version.h"
 #include <stdio.h>
 #include <string>
@@ -173,13 +172,16 @@ int main(int argc, char** argv) {
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 	}
 	
-	int window_w, window_h;
-	window_w = 1280; window_h = 720;
-	GLFWwindow *window = glfwCreateWindow(window_w, window_h, "GioEngine", NULL, NULL);
-	set_window_size(ImVec2(window_w, window_h));
-	if (window == NULL) return 1;
-	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1); // Enable vsync
+	// Creating window
+	{
+		int window_w, window_h;
+		window_w = 1280; window_h = 720;
+		GLFWwindow *window = glfwCreateWindow(window_w, window_h, "GioEngine", NULL, NULL);
+		set_window_size(ImVec2(window_w, window_h));
+		if (window == NULL) return 1;
+		glfwMakeContextCurrent(window);
+		glfwSwapInterval(1); // Enable vsync
+	}
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -192,8 +194,8 @@ int main(int argc, char** argv) {
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	// TEXT EDITOR SAMPLE
-	TextEditor editor;
-	auto lang = TextEditor::RustLang::Rust();
+	//TextEditor editor;
+	//auto lang = TextEditor::RustLang::Rust();
 	
 	bool show_demo_window = false;
 	bool show_project_manager = true;
@@ -285,7 +287,7 @@ int main(int argc, char** argv) {
 	ImFont * regular = io.Fonts->AddFontFromFileTTF("../style/fonts/Ubuntu-Bold.ttf", 17);
 	ImFont * code = io.Fonts->AddFontFromFileTTF("../style/fonts/SpaceMono-Bold.ttf", 19); 
 
-	std::string fileToEdit;
+	//std::string fileToEdit;
 
 	ImVec2 penis;
 	penis.x = 0; penis.y = 200;
@@ -324,7 +326,7 @@ int main(int argc, char** argv) {
 
 		ImGui::PushFont(code);
 
-		if(show_text_editor && filesystem::exists(get_current_project_dir())) {
+		/*if(show_text_editor && filesystem::exists(get_current_project_dir())) {
 			fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
 			if(prj_path_.size() == 0) {
 				{
@@ -336,20 +338,20 @@ int main(int argc, char** argv) {
 					}
 				}
 				prj_path_.clear();
-			}
+			}*/
 
-			auto cpos = editor.GetCursorPosition();
+			//auto cpos = editor.GetCursorPosition();
 
 			CanvasBegin("Editor", nullptr);
 
-			ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
+			/*ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 				editor.IsOverwrite() ? "Ovr" : "Ins",
 				editor.CanUndo() ? "*" : " ",
 				editor.GetCurrentMode(), fileToEdit.c_str());
 
 			editor.Render("TextEditor");
 
-			std::ofstream (fileToEdit.c_str()) << editor.GetText();
+			std::ofstream (fileToEdit.c_str()) << editor.GetText();*/
 			ImGui::End();
 
 
