@@ -17,6 +17,8 @@ add_subdirectory("libs")
 # Compile part of the engine
 add_subdirectory("src")
 
+SET(GCC_COVERAGE_COMPILE_FLAGS "-lstdc++fs")
+
 add_executable(GioEngine)
 target_sources(GioEngine PUBLIC ${PROJECT_DIR}/core/main.cpp)
 target_include_directories(GioEngine PUBLIC
@@ -26,4 +28,4 @@ target_include_directories(GioEngine PUBLIC
 	src/editor/zep/include
 	src/editor/zep/zep/include
 	)
-target_link_libraries(GioEngine PUBLIC core projectmanager canvas filedialog zep)
+target_link_libraries(GioEngine PUBLIC projectmanager canvas filedialog zep stdc++fs)

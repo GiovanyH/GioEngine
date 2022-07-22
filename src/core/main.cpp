@@ -18,7 +18,6 @@
 #include "nfd.h"
 #include "canvas.h"
 #include "editor.h"
-//#include "config_app.h"
 #include <math.h>
 
 using namespace ghc;
@@ -173,15 +172,15 @@ int main(int argc, char** argv) {
 	}
 	
 	// Creating window
-	{
-		int window_w, window_h;
-		window_w = 1280; window_h = 720;
-		GLFWwindow *window = glfwCreateWindow(window_w, window_h, "GioEngine", NULL, NULL);
-		set_window_size(ImVec2(window_w, window_h));
-		if (window == NULL) return 1;
-		glfwMakeContextCurrent(window);
-		glfwSwapInterval(1); // Enable vsync
-	}
+	
+	int window_w, window_h;
+	window_w = 1280; window_h = 720;
+	GLFWwindow *window = glfwCreateWindow(window_w, window_h, "GioEngine", NULL, NULL);
+	set_window_size(ImVec2(window_w, window_h));
+	if (window == NULL) return 1;
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1); // Enable vsync
+	
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -326,25 +325,24 @@ int main(int argc, char** argv) {
 
 		ImGui::PushFont(code);
 
-		/*if(show_text_editor && filesystem::exists(get_current_project_dir())) {
-			fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
-			if(prj_path_.size() == 0) {
-				{
-					fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
-					std::ifstream t(fileToEdit.c_str());
-					if (t.good()) {
-						std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-						editor.SetText(str);
-					}
-				}
-				prj_path_.clear();
-			}*/
+		if(!show_text_editor && filesystem::exists(get_current_project_dir())) {
+            zep_init(Zep::NVec2f(1.0f, 1.0f));
+			//fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
+            zep_load(Zep::ZepPath(".") / "src" / "main.cpp");
 
-			//auto cpos = editor.GetCursorPosition();
+			show_text_editor = true;
+		}
 
-			CanvasBegin("Editor", nullptr);
+		// Required for CTRL+P and flashing cursor.
+        zep_update();
 
-			/*ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
+        // Just show it
+        static Zep::NVec2i size = Zep::NVec2i(640, 480);
+        zep_show(size);
+
+		//CanvasBegin("Editor", nullptr);
+
+		/*ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 				editor.IsOverwrite() ? "Ovr" : "Ins",
 				editor.CanUndo() ? "*" : " ",
 				editor.GetCurrentMode(), fileToEdit.c_str());
@@ -352,10 +350,8 @@ int main(int argc, char** argv) {
 			editor.Render("TextEditor");
 
 			std::ofstream (fileToEdit.c_str()) << editor.GetText();*/
-			ImGui::End();
+		//ImGui::End();
 
-
-		}
 
 		ImGui::PopFont();
 
@@ -375,6 +371,8 @@ int main(int argc, char** argv) {
 
 		glfwSwapBuffers(window);
 	}
+
+    zep_destroy();
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
