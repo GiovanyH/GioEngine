@@ -1,17 +1,11 @@
-cmake_minimum_required(VERSION 3.15)
-
 if (WIN32)
     set(VCPKG_TARGET_TRIPLET x64-windows-static-md)
 endif()
 
 find_package(Freetype REQUIRED)
 
-# Set this if we are sitting on SDL
-add_definitions(-DZEP_USE_SDL)
-
 # Set this to get the default file system
 add_definitions(-DZEP_FEATURE_CPP_FILE_SYSTEM)
-
 
 add_subdirectory(zep/src)
 

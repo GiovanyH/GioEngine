@@ -24,5 +24,6 @@ target_include_directories(GioEngine PUBLIC
 	src/API/
 	src/editor/canvas/
 	src/editor/zep/include
+	src/editor/zep/zep/include
 	)
-target_link_libraries(GioEngine PUBLIC core projectmanager canvas filedialog)
+target_link_libraries(GioEngine PUBLIC core projectmanager canvas filedialog zep)
