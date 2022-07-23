@@ -491,44 +491,23 @@ int main(int argc, char** argv) {
 		ImGui::PushFont(code);
 
 		if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
-			std::cout << "Hello" << std::endl;
             zep_init(Zep::NVec2f(1.0f, 1.0f));
 			fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
-            zep_load(Zep::ZepPath("/home/giovany/Development/GioEngine/src/editor/zep") / "src" / "main.cpp");
+            zep_load(Zep::ZepPath(APP_ROOT) / "src" / "main.cpp");
 
 			show_z = false;
 		}
 
 		if(filesystem::exists(get_current_project_dir()) && show_text_editor) {
-			std::cout << "Hello" << std::endl;
 			// Required for CTRL+P and flashing cursor.
 			zep_update();
 
 
-			std::cout << "Hello" << std::endl;
-
 			// Just show it
 			static Zep::NVec2i size = Zep::NVec2i(640, 480);
 
-
-			std::cout << "Hello" << std::endl;
 			zep_show(size);
-
-			std::cout << "Hello" << std::endl;
 		}
-
-		//CanvasBegin("Editor", nullptr);
-
-		/*ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
-				editor.IsOverwrite() ? "Ovr" : "Ins",
-				editor.CanUndo() ? "*" : " ",
-				editor.GetCurrentMode(), fileToEdit.c_str());
-
-			editor.Render("TextEditor");
-
-			std::ofstream (fileToEdit.c_str()) << editor.GetText();*/
-		//ImGui::End();
-
 
 		ImGui::PopFont();
 
