@@ -1,11 +1,16 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Creating project
 project(GioEngine VERSION 1.3.0)
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+
 
 # cmake config
 set(CONFIG_DIR ${PROJECT_DIR}/core/config)
@@ -16,8 +21,6 @@ add_subdirectory("libs")
 
 # Compile part of the engine
 add_subdirectory("src")
-
-SET(GCC_COVERAGE_COMPILE_FLAGS "-lstdc++fs")
 
 add_executable(GioEngine)
 target_sources(GioEngine PUBLIC ${PROJECT_DIR}/core/main.cpp)
