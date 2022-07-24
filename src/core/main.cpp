@@ -329,7 +329,6 @@ static void ShowProjectManager(bool* p_open) {
 
 bool show_project_manager = true;
 bool show_z = true;
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 std::string fileToEdit;
 
 void core::Update() {
@@ -387,16 +386,6 @@ void core::Update() {
 	ImGui::PopFont();
 
 	ImGui::Render();
-
-	int display_w, display_h;
-	glfwGetFramebufferSize(core::main_window, &display_w, &display_h);
-	set_window_size(ImVec2(display_w, display_h));
-	glViewport(0, 0, display_w, display_h);
-	glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-	glClear(GL_COLOR_BUFFER_BIT);
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	glfwSwapBuffers(core::main_window);
 }
 
 void core::Clear() {
