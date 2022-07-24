@@ -1,18 +1,21 @@
-#include "config.h"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include <fstream>
-#include <streambuf>
-#include "config/version.h"
 #include <stdio.h>
 #include <string>
 #include <iostream>
-#include "../API/projectmanager/project.h"
-#if defined(IMGUI_IMPL_OPENGL_ES2)
+#include <streambuf>
+#include <math.h>
+
 #include <GLES2/gl2.h>
-#endif
 #include <GLFW/glfw3.h>
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+#include "config.h"
+#include "config/version.h"
+
+#include "../API/projectmanager/project.h"
 
 // Core
 #include "init.cpp"
@@ -21,16 +24,16 @@
 
 #include "ghc/filesystem.hpp"
 #include "nfd.h"
+
 #include "canvas.h"
+
 #include "editor.h"
-#include <math.h>
 
 #include <functional>
-#include <filesystem>
 #ifdef ZEP_CONSOLE
 #include <zep\imgui\console_imgui.h>
 #endif
-namespace fs = std::filesystem;
+namespace fs = ghc::filesystem;
 
 #define APP_ROOT "/home/giovany/Development/GioEngine/src/editor/zep"
 using namespace Zep;
