@@ -1,0 +1,87 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"libs/string-view-lite/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 110,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 116,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 122,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/string-view-lite",
+			"exportName" : "string-view-lite-targets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "string-view-lite::@f50982236676bcce044e",
+					"index" : 0
+				}
+			],
+			"paths" : 
+			[
+				"libs/string-view-lite/CMakeFiles/Export/lib/cmake/string-view-lite/string-view-lite-targets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/string-view-lite",
+			"paths" : 
+			[
+				"build/libs/string-view-lite/string-view-lite-config.cmake",
+				"build/libs/string-view-lite/string-view-lite-config-version.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				{
+					"from" : "libs/string-view-lite/include",
+					"to" : "."
+				}
+			],
+			"type" : "directory"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "libs/string-view-lite",
+		"source" : "libs/string-view-lite"
+	}
+}

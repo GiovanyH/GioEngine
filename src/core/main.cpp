@@ -15,7 +15,7 @@
 #include "config.h"
 #include "config/version.h"
 
-#include "../API/projectmanager/project.h"
+#include "../core/projectmanager/project.h"
 
 // Core
 #include "init.cpp"

@@ -1,0 +1,350 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						5
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "libs",
+					"childIndexes" : 
+					[
+						2,
+						4
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs-ec580da4e47c3b0e73da.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "libs",
+					"targetIndexes" : 
+					[
+						1,
+						5
+					]
+				},
+				{
+					"build" : "libs/glfw",
+					"childIndexes" : 
+					[
+						3
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.glfw-631e04a0e3bf8db6d13d.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "libs/glfw",
+					"targetIndexes" : 
+					[
+						8
+					]
+				},
+				{
+					"build" : "libs/glfw/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.glfw.src-5ddcc668253c63d1b78b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "libs/glfw/src",
+					"targetIndexes" : 
+					[
+						6,
+						9
+					]
+				},
+				{
+					"build" : "libs/string-view-lite",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.string-view-lite-b387ae74c6f2917376ce.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 2,
+					"source" : "libs/string-view-lite"
+				},
+				{
+					"build" : "src",
+					"childIndexes" : 
+					[
+						6,
+						9,
+						10
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-src-b6cf2213fc5053b67c22.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "src"
+				},
+				{
+					"build" : "src/editor",
+					"childIndexes" : 
+					[
+						7
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-src.editor-0f4371533528202bf635.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 5,
+					"projectIndex" : 0,
+					"source" : "src/editor",
+					"targetIndexes" : 
+					[
+						3,
+						4
+					]
+				},
+				{
+					"build" : "src/editor/zep",
+					"childIndexes" : 
+					[
+						8
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-src.editor.zep-7e9143e1fe0037ca0283.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 6,
+					"projectIndex" : 0,
+					"source" : "src/editor/zep",
+					"targetIndexes" : 
+					[
+						10
+					]
+				},
+				{
+					"build" : "src/editor/zep/zep/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-src.editor.zep.zep.src-0bf373759f0c31ffcd67.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 7,
+					"projectIndex" : 0,
+					"source" : "src/editor/zep/zep/src",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "src/API",
+					"jsonFile" : "directory-src.API-a149d0d22142a6230680.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 5,
+					"projectIndex" : 0,
+					"source" : "src/API"
+				},
+				{
+					"build" : "src/core",
+					"jsonFile" : "directory-src.core-36daa2e54a8600f0fb49.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 5,
+					"projectIndex" : 0,
+					"source" : "src/core",
+					"targetIndexes" : 
+					[
+						7
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10
+					],
+					"name" : "GioEngine",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						7,
+						10
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2,
+						3
+					],
+					"name" : "GLFW",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						6,
+						8,
+						9
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4
+					],
+					"name" : "string_view_lite",
+					"parentIndex" : 0
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "GioEngine::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-GioEngine-d9c846d4bf0f7f8dffe7.json",
+					"name" : "GioEngine",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "IMGUI::@10801ec9068017628f26",
+					"jsonFile" : "target-IMGUI-ab6d64315d18eb1c2139.json",
+					"name" : "IMGUI",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "Zep::@311c4527b8591990c54a",
+					"jsonFile" : "target-Zep-8a49adfb7e0cac4357e1.json",
+					"name" : "Zep",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "canvas::@01b63ccde04debc086b6",
+					"jsonFile" : "target-canvas-b2fea1fe6598dfb69c9c.json",
+					"name" : "canvas",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "configurations::@01b63ccde04debc086b6",
+					"jsonFile" : "target-configurations-572c23f29e01323e4376.json",
+					"name" : "configurations",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "filedialog::@10801ec9068017628f26",
+					"jsonFile" : "target-filedialog-606b265936d5202fa3f9.json",
+					"name" : "filedialog",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "glfw::@9d94ad66e13f8aab41f7",
+					"jsonFile" : "target-glfw-0cb06bc0a6146594913a.json",
+					"name" : "glfw",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 10,
+					"id" : "projectmanager::@0618756b1ff51bca1a0e",
+					"jsonFile" : "target-projectmanager-10ad3d2f8bddab52d75d.json",
+					"name" : "projectmanager",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "uninstall::@6746522484b1c52deeae",
+					"jsonFile" : "target-uninstall-22925a03c4f9e831bcb6.json",
+					"name" : "uninstall",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "update_mappings::@9d94ad66e13f8aab41f7",
+					"jsonFile" : "target-update_mappings-ba80a33568ef5512585a.json",
+					"name" : "update_mappings",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "zep::@6da6de57da6993d41bbc",
+					"jsonFile" : "target-zep-a614513499ee6e66dc4d.json",
+					"name" : "zep",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/giovany/Development/GioEngine/build",
+		"source" : "/home/giovany/Development/GioEngine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

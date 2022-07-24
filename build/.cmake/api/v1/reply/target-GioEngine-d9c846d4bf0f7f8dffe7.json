@@ -1,0 +1,270 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "GioEngine"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"target_include_directories",
+			"target_sources"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 25,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 34,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 27,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 26,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-fPIE"
+				},
+				{
+					"fragment" : "-std=gnu++17"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 3,
+					"path" : "/home/giovany/Development/GioEngine/libs/filesystem/include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/giovany/Development/GioEngine/src/API"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/giovany/Development/GioEngine/src/editor/canvas"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/giovany/Development/GioEngine/src/editor/zep/include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/giovany/Development/GioEngine/src/editor/zep/zep/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/src/Core"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/src/Editor/Canvas"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/libs/imgui"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/libs/imgui/backends"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/libs/glfw/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/libs/nativefiledialog/src/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/libs/nativefiledialog/src"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/giovany/Development/GioEngine/src/editor/config"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "filedialog::@10801ec9068017628f26"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "IMGUI::@10801ec9068017628f26"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "glfw::@9d94ad66e13f8aab41f7"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "canvas::@01b63ccde04debc086b6"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "zep::@6da6de57da6993d41bbc"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "Zep::@311c4527b8591990c54a"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "projectmanager::@0618756b1ff51bca1a0e"
+		}
+	],
+	"id" : "GioEngine::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "src/core/libprojectmanager.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "src/editor/libcanvas.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "libs/libfiledialog.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "src/editor/zep/libzep.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lstdc++fs",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "libs/libIMGUI.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libOpenGL.so",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libGLX.so",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libGLU.so",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "libs/glfw/src/libglfw3.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/lib/x86_64-linux-gnu/librt.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lm",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-ldl",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lfreetype",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "lib/libZep.a",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "GioEngine",
+	"nameOnDisk" : "GioEngine",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 4,
+			"compileGroupIndex" : 0,
+			"path" : "src/core/main.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}
