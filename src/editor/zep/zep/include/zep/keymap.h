@@ -39,6 +39,7 @@ DECLARE_COMMANDID(VisualAppendToLine)
 DECLARE_COMMANDID(VisualAppend)
 DECLARE_COMMANDID(VisualInsertAtFirstChar)
 DECLARE_COMMANDID(FindNext)
+DECLARE_COMMANDID(FindNextDelimiter)
 DECLARE_COMMANDID(NextMarker)
 DECLARE_COMMANDID(PreviousMarker)
 DECLARE_COMMANDID(MotionNextFirstChar)
@@ -72,6 +73,7 @@ DECLARE_COMMANDID(ChangeAWord)
 DECLARE_COMMANDID(ChangeAWORD)
 DECLARE_COMMANDID(ChangeInnerWord)
 DECLARE_COMMANDID(ChangeInnerWORD)
+DECLARE_COMMANDID(ChangeIn)
 DECLARE_COMMANDID(ChangeToChar)
 
 DECLARE_COMMANDID(Replace)
@@ -208,7 +210,7 @@ struct KeyMapResult
     {
         if (captureRegisters.empty())
         {
-            return '"';
+            return 0;
         }
         return captureRegisters[0];
     }

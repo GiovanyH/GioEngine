@@ -187,6 +187,7 @@ struct SyntaxProvider
 
 const float bottomBorder = 2.0f;
 const float textBorder = 2.0f;
+const float tabToneLine = 5.0f;
 const float tabSpacing = 1.0f;
 const float leftBorderChars = 3;
 
@@ -218,10 +219,12 @@ struct EditorConfig
     float underlineHeight = 3.0f;
     bool showLineNumbers = true;
     bool shortTabNames = true;
+    bool tabToneColors = false;
     bool showIndicatorRegion = true;
     bool autoHideCommandRegion = true;
     bool cursorLineSolid = false;
     bool showNormalModeKeyStrokes = false;
+    bool searchGitRoot = true;
     float backgroundFadeTime = 60.0f;
     float backgroundFadeWait = 60.0f;
 };
@@ -243,7 +246,6 @@ public:
 struct TabRegionTab : public Region
 {
     NVec4f color;
-    std::string name;
     ZepTabWindow* pTabWindow = nullptr;
 };
 
@@ -293,10 +295,14 @@ public:
     const tBuffers& GetBuffers() const;
     ZepBuffer* GetMRUBuffer() const;
     void SaveBuffer(ZepBuffer& buffer);
+    void SaveBufferAs(ZepBuffer& buffer, ZepPath filePath);
     ZepBuffer* GetFileBuffer(const ZepPath& filePath, uint32_t fileFlags = 0, bool create = true);
     ZepBuffer* GetEmptyBuffer(const std::string& name, uint32_t fileFlags = 0);
     void RemoveBuffer(ZepBuffer* pBuffer);
     std::vector<ZepWindow*> FindBufferWindows(const ZepBuffer* pBuffer) const;
+    ZepBuffer* GetActiveBuffer() const;
+    ZepBuffer* FindFileBuffer(const ZepPath& filePath);
+    ZepWindow* EnsureWindow(ZepBuffer& buffer);
 
     void SetRegister(const std::string& reg, const Register& val);
     void SetRegister(const char reg, const Register& val);
@@ -318,10 +324,12 @@ public:
     void NextTabWindow();
     void PreviousTabWindow();
     void SetCurrentTabWindow(ZepTabWindow* pTabWindow);
+    void SetCurrentWindow(ZepWindow* pWindow);
     ZepTabWindow* GetActiveTabWindow() const;
     ZepTabWindow* AddTabWindow();
     void RemoveTabWindow(ZepTabWindow* pTabWindow);
     const tTabWindows& GetTabWindows() const;
+    ZepWindow* GetActiveWindow() const;
 
     void UpdateTabs();
 
@@ -445,6 +453,7 @@ private:
 
     // Config
     EditorConfig m_config;
+    ZepPath m_configRoot;
 
     std::unique_ptr<ThreadPool> m_threadPool;
 

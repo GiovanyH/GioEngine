@@ -366,4 +366,5 @@ CMakeFiles/GioEngine.dir/src/core/main.cpp.o: \
  /home/giovany/Development/GioEngine/src/editor/zep/zep/include/zep/mode_standard.h \
  /home/giovany/Development/GioEngine/src/editor/zep/zep/include/zep/imgui/display_imgui.h \
  /home/giovany/Development/GioEngine/src/editor/zep/zep/include/zep/imgui/editor_imgui.h \
- /home/giovany/Development/GioEngine/src/editor/zep/zep/include/zep/imgui/console_imgui.h
+ /home/giovany/Development/GioEngine/src/editor/zep/zep/include/zep/imgui/console_imgui.h \
+ /home/giovany/Development/GioEngine/src/core/texteditor.cpp

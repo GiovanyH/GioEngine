@@ -1,5 +1,5 @@
 #include "zep/filesystem.h"
-#include "zep/editor.h"
+#include "zep/editor.h" // FOR ZEP_UNUSED
 
 #include <fstream>
 
@@ -10,7 +10,6 @@
 
 #if defined(ZEP_FEATURE_CPP_FILE_SYSTEM)
 
-// Unix/Clang is behind
 #include <filesystem>
 namespace cpp_fs = std::filesystem;
 
@@ -28,7 +27,7 @@ ZepFileSystemCPP::ZepFileSystemCPP(const ZepPath& configPath)
     {
         m_configPath = m_workingDirectory;
     }
-    
+
     ZLOG(INFO, "Config Dir: " << m_configPath.c_str());
     ZLOG(INFO, "Working Dir: " << m_workingDirectory.c_str());
 }
@@ -39,6 +38,12 @@ ZepFileSystemCPP::~ZepFileSystemCPP()
 
 void ZepFileSystemCPP::SetWorkingDirectory(const ZepPath& path)
 {
+    if (!IsDirectory(path))
+    {
+        return;
+    }
+    // Set the file system's current working directory too.
+    cpp_fs::current_path(path.string());
     m_workingDirectory = path;
 }
 
@@ -51,7 +56,7 @@ ZepPath ZepFileSystemCPP::GetConfigPath() const
 {
     return m_configPath;
 }
-    
+
 bool ZepFileSystemCPP::MakeDirectories(const ZepPath& path)
 {
     return cpp_fs::create_directories(path.c_str());
@@ -193,6 +198,11 @@ ZepPath ZepFileSystemCPP::GetSearchRoot(const ZepPath& start, bool& foundGit) co
                 testPath = testPath.parent_path();
             }
 
+            if (!(m_flags & ZepFileSystemFlags::SearchGitRoot))
+            {
+                return testPath;
+            }
+
             while (!testPath.empty() && IsDirectory(testPath))
             {
                 foundGit = false;
@@ -221,11 +231,21 @@ ZepPath ZepFileSystemCPP::GetSearchRoot(const ZepPath& start, bool& foundGit) co
 
                 testPath = testPath.parent_path();
             }
+
+            // Didn't find a sensible search root, so start at the parent folder of the start path if it is a file
+            if (!IsDirectory(startPath))
+            {
+                if (IsDirectory(startPath.parent_path()))
+                {
+                    return startPath.parent_path();
+                }
+            }
         }
         return startPath;
     };
 
     ZepPath workingDir = GetWorkingDirectory();
+
     auto startPath = findStartPath(start);
     if (startPath.empty())
     {
@@ -243,6 +263,12 @@ ZepPath ZepFileSystemCPP::GetSearchRoot(const ZepPath& start, bool& foundGit) co
     }
     return startPath;
 }
+
+void ZepFileSystemCPP::SetFlags(uint32_t flags)
+{
+    m_flags = flags;
+}
+
 } // namespace Zep
 
 #endif // CPP_FILESYSTEM

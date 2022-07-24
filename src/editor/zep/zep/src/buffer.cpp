@@ -387,7 +387,10 @@ GlyphIterator ZepBuffer::FindOnLineMotion(GlyphIterator start, const uint8_t* pC
 
     if (dir == Direction::Forward)
     {
+        // Ignore char under cursor, as behavior
         SkipOne(IsMatch, start, dir);
+
+        // Find to the end of the line
         Skip(NotMatchNotEnd, start, dir);
     }
     else
@@ -401,6 +404,151 @@ GlyphIterator ZepBuffer::FindOnLineMotion(GlyphIterator start, const uint8_t* pC
         return start;
     }
     return entry;
+}
+
+std::pair<GlyphIterator, GlyphIterator> ZepBuffer::FindMatchingPair(GlyphIterator start, const uint8_t ch) const
+{
+    std::string delims;
+    switch (ch)
+    {
+    case '(':
+    case ')':
+        delims = "()";
+        break;
+    case '[':
+    case ']':
+        delims = "[]";
+        break;
+    case '{':
+    case '}':
+        delims = "{}";
+        break;
+    default:
+        // Matching same char at both ends
+        delims = std::string(2, ch);
+        break;
+    }
+
+    std::pair<GlyphIterator, GlyphIterator> ret;
+    Direction dir = Direction::Backward;
+
+    auto search = [&](GlyphIterator loc, Direction dir) {
+        int openCount = 1;
+        for (;;)
+        {
+            // Find the previous open for the current delim type
+            int newIndex;
+            loc = FindFirstCharOf(loc, delims, newIndex, dir);
+
+            // Fell off beginning, no find
+            if (newIndex < 0)
+            {
+                return GlyphIterator();
+            }
+
+            if (dir == Direction::Forward)
+            {
+                newIndex = 1 - newIndex;
+            }
+
+            // Match immediately for ""
+            if (delims[0] == delims[1])
+            {
+                newIndex = 0;
+            }
+
+            // Found another opener
+            if (newIndex == 0)
+            {
+                openCount--;
+                if (openCount == 0)
+                {
+                    // Found opening
+                    return loc;
+                }
+            }
+            // Found a closer
+            else if (newIndex == 1)
+            {
+                openCount++;
+            }
+
+            if (dir == Direction::Forward)
+            {
+                if (loc == End())
+                {
+                    return GlyphIterator();
+                }
+                loc++;
+            }
+            else
+            {
+                if (loc == Begin())
+                {
+                    return GlyphIterator();
+                }
+                loc--;
+            }
+        }
+    };
+
+    // If on the end bracket, start before it.
+    if (start.Char() == delims[1] && delims[0] != delims[1])
+    {
+        start--;
+    }
+
+    // Search for the begin
+    ret.first = search(start, Direction::Backward);
+    if (ret.first.Valid() && ret.first != End())
+    {
+        // Search for the end
+        ret.second = search(ret.first + 1, Direction::Forward);
+    }
+    return ret;
+}
+
+// Only works on searches of ascii characters (but navigates unicode buffer); useful for some vim operations
+// Returns the index of the first found char and its location
+GlyphIterator ZepBuffer::FindFirstCharOf(GlyphIterator& start, const std::string& chars, int32_t& found_index, Direction dir) const
+{
+    GlyphIterator itr = start;
+    if (!itr.Valid())
+    {
+        found_index = -1;
+        return itr;
+    }
+
+    for (;;)
+    {
+        for (int i = 0; i < chars.length(); i++)
+        {
+            if (itr.Char() == chars[i])
+            {
+                found_index = i;
+                return itr;
+            }
+        }
+
+        if (dir == Direction::Forward)
+        {
+            if (itr == End())
+            {
+                break;
+            }
+            itr++;
+        }
+        else if (dir == Direction::Backward)
+        {
+            if (itr == Begin())
+            {
+                break;
+            }
+            itr--;
+        }
+    }
+    found_index = -1;
+    return itr;
 }
 
 GlyphIterator ZepBuffer::WordMotion(GlyphIterator start, uint32_t searchType, Direction dir) const
@@ -636,6 +784,12 @@ bool ZepBuffer::Save(int64_t& size)
     if (GetEditor().GetFileSystem().Write(m_filePath, &str[0], (size_t)size))
     {
         m_fileFlags = ZClearFlags(m_fileFlags, FileFlags::Dirty);
+
+        if (GetEditor().GetFileSystem().Exists(m_filePath))
+        {
+            // We wrote succesfully, so make sure our path is canonical
+            m_filePath = GetEditor().GetFileSystem().Canonical(m_filePath);
+        }
         return true;
     }
     return false;
@@ -661,6 +815,21 @@ void ZepBuffer::SetFilePath(const ZepPath& path)
     if (GetEditor().GetFileSystem().Exists(testPath))
     {
         testPath = GetEditor().GetFileSystem().Canonical(testPath);
+    }
+    else
+    {
+        if (!path.is_absolute()) 
+        {
+            auto full = GetEditor().GetFileSystem().GetWorkingDirectory() / path;
+            if (GetEditor().GetFileSystem().Exists(full))
+            {
+                testPath = GetEditor().GetFileSystem().Canonical(full);
+            }
+            else
+            {
+                testPath = full;
+            }
+        }
     }
 
     if (!GetEditor().GetFileSystem().Equivalent(testPath, m_filePath))
@@ -1160,7 +1329,7 @@ void ZepBuffer::ClearRangeMarker(std::shared_ptr<RangeMarker> spMarker)
             m_rangeMarkers.erase(spMarker->GetRange().first);
         }
     }
-    
+
     // TODO: Why is this necessary; marks the whole buffer
     GetEditor().Broadcast(std::make_shared<BufferMessage>(this, BufferMessageType::MarkersChanged, Begin(), End()));
 }
@@ -1178,7 +1347,11 @@ void ZepBuffer::ClearRangeMarkers(uint32_t markerType)
 {
     std::set<std::shared_ptr<RangeMarker>> markers;
     ForEachMarker(markerType, Direction::Forward, Begin(), End(), [&](const std::shared_ptr<RangeMarker>& pMarker) {
-        markers.insert(pMarker);
+        // Timed ones will expire on their own; TODO: Add a cleaner mechanism for selection here
+        if (!(pMarker->displayType & RangeMarkerDisplayType::Timed))
+        {
+            markers.insert(pMarker);
+        }
         return true;
     });
 
@@ -1401,11 +1574,13 @@ bool ZepBuffer::IsHidden() const
 void ZepBuffer::SetFileFlags(uint32_t flags, bool set)
 {
     m_fileFlags = ZSetFlags(m_fileFlags, flags, set);
+    GetEditor().UpdateTabs();
 }
 
 void ZepBuffer::ClearFileFlags(uint32_t flags)
 {
-    m_fileFlags = ZSetFlags(m_fileFlags, flags, false);
+    m_fileFlags = ZClearFlags(m_fileFlags, flags);
+    GetEditor().UpdateTabs();
 }
 
 bool ZepBuffer::HasFileFlags(uint32_t flags) const
@@ -1560,11 +1735,11 @@ void ZepBuffer::BeginFlash(float seconds, FlashType flashType, const GlyphRange&
     {
         return;
     }
-    
+
     auto spMarker = std::make_shared<RangeMarker>(*this);
     spMarker->SetRange(ByteRange(range.first.Index(), range.second.Index()));
     spMarker->SetBackgroundColor(ThemeColor::FlashColor);
-    spMarker->displayType = RangeMarkerDisplayType::Timed |RangeMarkerDisplayType::Background;
+    spMarker->displayType = RangeMarkerDisplayType::Timed | RangeMarkerDisplayType::Background;
     spMarker->markerType = RangeMarkerType::Mark;
     spMarker->duration = seconds;
     spMarker->flashType = flashType;
@@ -1583,6 +1758,15 @@ uint64_t ZepBuffer::ToHandle() const
 ZepBuffer* ZepBuffer::FromHandle(ZepEditor& editor, uint64_t handle)
 {
     return editor.GetBufferFromHandle(handle);
+}
+
+const std::string& ZepBuffer::GetName() const
+{
+    if (!m_filePath.empty() && m_filePath.has_filename())
+    {
+        m_strName = m_filePath.filename().string();
+    }
+    return m_strName;
 }
 
 } // namespace Zep
