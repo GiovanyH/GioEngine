@@ -1,0 +1,2 @@
+/usr/bin/ar qc libzep.a CMakeFiles/zep.dir/src/main.cpp.o CMakeFiles/zep.dir/src/editor.cpp.o
+/usr/bin/ranlib libzep.a

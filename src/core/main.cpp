@@ -14,7 +14,10 @@
 #endif
 #include <GLFW/glfw3.h>
 
+// Core
 #include "init.cpp"
+#include "load_style.cpp"
+#include "events.cpp"
 
 #include "ghc/filesystem.hpp"
 #include "nfd.h"
@@ -324,118 +327,96 @@ static void ShowProjectManager(bool* p_open) {
     ImGui::End();
 }
 
+bool show_project_manager = true;
+bool show_z = true;
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+std::string fileToEdit;
+
+void core::Update() {
+	ImGui::PushFont(core::regular_font);
+
+	bool show_demo_window = false;
+
+	if(show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+	if(show_project_manager) ShowProjectManager(&show_project_manager);
+	if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
+
+	if(show_file_browser) {
+		nfdchar_t *outPath = NULL;
+		nfdresult_t result = NFD_PickFolder( NULL, &outPath );
+		if (result == NFD_OKAY) {
+			prj_path_ = outPath;
+			free(outPath);
+			show_file_browser = false;
+		}
+		else if (result == NFD_CANCEL) {
+			show_file_browser = false;
+		}
+		else {
+			printf("Error: %s\n", NFD_GetError() );
+		}
+	}
+
+	SimpleOverlay();
+
+	ImGui::PushFont(core::code_font);
+
+	if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
+		zep_init(Zep::NVec2f(1.0f, 1.0f));
+		fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
+		zep_load(Zep::ZepPath(APP_ROOT) / "src" / "main.cpp");
+
+		show_z = false;
+	}
+
+	if(filesystem::exists(get_current_project_dir()) && show_text_editor) {
+		// Required for CTRL+P and flashing cursor.
+		zep_update();
+
+
+		// Just show it
+		static Zep::NVec2i size = Zep::NVec2i(640, 480);
+
+		zep_show(size);
+	}
+
+	ImGui::PopFont();
+
+	gioengine_draw_canvas();
+
+	ImGui::PopFont();
+
+	ImGui::Render();
+
+	int display_w, display_h;
+	glfwGetFramebufferSize(core::main_window, &display_w, &display_h);
+	set_window_size(ImVec2(display_w, display_h));
+	glViewport(0, 0, display_w, display_h);
+	glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+	glClear(GL_COLOR_BUFFER_BIT);
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	glfwSwapBuffers(core::main_window);
+}
+
+void core::Clear() {
+	zep_destroy();
+}
+
 int main(int argc, char** argv) {
 	glfwSetErrorCallback(glfw_error_callback);
 	
-	// Creating window
-	
 	core::init();
-
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-
 	if (core::main_window == NULL) return 1;
-
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	
-	bool show_demo_window = false;
-	bool show_project_manager = true;
 	load_gioengine_projects();
 
 	core::load_colors();
 	core::load_style();
+	core::load_fonts(io);
 
-	ImFont * regular = io.Fonts->AddFontFromFileTTF("../style/fonts/Ubuntu-Bold.ttf", 17);
-	ImFont * code = io.Fonts->AddFontFromFileTTF("../style/fonts/SpaceMono-Bold.ttf", 19); 
-
-	std::string fileToEdit;
-
-	ImVec2 penis;
-	penis.x = 0; penis.y = 200;
-
-	bool show_z = true;
-
-	core::main_loop(!glfwWindowShouldClose(core::main_window));
-
-	while (!glfwWindowShouldClose(core::main_window)) {
-		glfwPollEvents();
-		
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		ImGui::PushFont(regular);
-
-		if(show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-		if(show_project_manager) ShowProjectManager(&show_project_manager);
-		if(show_project_creation_window) ShowProjectCreationWindow(&show_project_creation_window);
-
-		if(show_file_browser) {
-			nfdchar_t *outPath = NULL;
-			nfdresult_t result = NFD_PickFolder( NULL, &outPath );
-			if (result == NFD_OKAY) {
-				prj_path_ = outPath;
-				free(outPath);
-				show_file_browser = false;
-			}
-			else if (result == NFD_CANCEL) {
-				show_file_browser = false;
-			}
-			else {
-				printf("Error: %s\n", NFD_GetError() );
-			}
-		}
-
-		
-		SimpleOverlay();
-
-		ImGui::PushFont(code);
-
-		if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
-            zep_init(Zep::NVec2f(1.0f, 1.0f));
-			fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
-            zep_load(Zep::ZepPath(APP_ROOT) / "src" / "main.cpp");
-
-			show_z = false;
-		}
-
-		if(filesystem::exists(get_current_project_dir()) && show_text_editor) {
-			// Required for CTRL+P and flashing cursor.
-			zep_update();
-
-
-			// Just show it
-			static Zep::NVec2i size = Zep::NVec2i(640, 480);
-
-			zep_show(size);
-		}
-
-		ImGui::PopFont();
-
-		gioengine_draw_canvas();
-
-		ImGui::PopFont();
-
-		ImGui::Render();
-
-		int display_w, display_h;
-		glfwGetFramebufferSize(core::main_window, &display_w, &display_h);
-		set_window_size(ImVec2(display_w, display_h));
-		glViewport(0, 0, display_w, display_h);
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		glfwSwapBuffers(core::main_window);
-	}
-
-    zep_destroy();
-
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	glfwDestroyWindow(core::main_window);
-	glfwTerminate();
+	core::main_loop(core::main_window);
+	core::clear();
 
 	return 0;
 }

@@ -1,4 +1,5 @@
 namespace core {
+	ImFont *regular_font, *code_font;
     void load_colors() {
         ImVec4* colors = ImGui::GetStyle().Colors;
 		colors[ImGuiCol_Text]                   = ImVec4(0.89f, 0.83f, 0.674f, 1.0f);
@@ -80,4 +81,8 @@ namespace core {
 		style.LogSliderDeadzone                 = 4;
 		style.TabRounding                       = 2;
     }
+	void load_fonts(ImGuiIO& io) {
+		ImFont * regular = io.Fonts->AddFontFromFileTTF("../style/fonts/Ubuntu-Bold.ttf", 17);
+		ImFont * code = io.Fonts->AddFontFromFileTTF("../style/fonts/SpaceMono-Bold.ttf", 19); 
+	}
 }
