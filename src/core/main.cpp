@@ -152,7 +152,7 @@ void zep_show(const Zep::NVec2i& displaySize)
     spZep->AddLog("Hello!");
 #else
     ImGui::SetNextWindowSize(ImVec2(displaySize.x, displaySize.y), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Zep", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar))
+    if (!CanvasBegin("Zep", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar))
     {
         ImGui::End();
         return;
