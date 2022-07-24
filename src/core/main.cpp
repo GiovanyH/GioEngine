@@ -29,7 +29,6 @@
 
 #include "editor.h"
 
-#include <functional>
 #ifdef ZEP_CONSOLE
 #include <zep\imgui\console_imgui.h>
 #endif
@@ -112,7 +111,7 @@ void zep_init(const Zep::NVec2f& pixelScale)
 #endif
 
     auto& display = spZep->GetEditor().GetDisplay();
-    auto pImFont = ImGui::GetIO().Fonts[0].Fonts[0];
+    auto pImFont = ImGui::GetIO().Fonts[0].Fonts[1];
     auto pixelHeight = pImFont->FontSize;
     display.SetFont(ZepTextType::UI, std::make_shared<ZepFont_ImGui>(display, pImFont, int(pixelHeight)));
     display.SetFont(ZepTextType::Text, std::make_shared<ZepFont_ImGui>(display, pImFont, int(pixelHeight)));
@@ -361,12 +360,11 @@ void core::Update() {
 
 	SimpleOverlay();
 
-    ImGui::PushFont(core::zep_font);
+    ImGui::PushFont(core::code_font);
 
 	if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
 		zep_init(Zep::NVec2f(1.0f, 1.0f));
-		fileToEdit = (get_current_project_dir() + "/src/main.rs").c_str();
-		zep_load(Zep::ZepPath(APP_ROOT) / "src" / "main.cpp");
+		zep_load(Zep::ZepPath(get_current_project_dir()) / "src" / "main.rs");
 
 		show_z = false;
 	}
