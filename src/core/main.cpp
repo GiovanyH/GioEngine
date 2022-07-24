@@ -99,9 +99,7 @@ size_t split(const std::string &txt, std::vector<std::string> &strs, char ch) {
 
 std::vector<std::string> get_project(std::string project) {
 	std::vector<std::string> project_vec;
-
 	split(project, project_vec, '#');
-
 	return project_vec;
 }
 
@@ -204,18 +202,12 @@ void core::Update() {
 	if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
 		zep_init(Zep::NVec2f(1.0f, 1.0f));
 		zep_load(Zep::ZepPath(get_current_project_dir()) / "src" / "main.rs");
-
 		show_z = false;
 	}
 
 	if(filesystem::exists(get_current_project_dir()) && show_text_editor) {
-		// Required for CTRL+P and flashing cursor.
 		zep_update();
-
-
-		// Just show it
 		static Zep::NVec2i size = Zep::NVec2i(640, 480);
-
 		zep_show(size);
 	}
 
