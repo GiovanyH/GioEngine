@@ -1,0 +1,2 @@
+/usr/bin/ar qc libprojectmanager.a CMakeFiles/projectmanager.dir/projectmanager/project.cpp.o
+/usr/bin/ranlib libprojectmanager.a

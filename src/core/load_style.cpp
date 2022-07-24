@@ -1,5 +1,5 @@
 namespace core {
-	ImFont *regular_font, *code_font;
+	ImFont *regular_font, *code_font, *zep_font;
     void load_colors() {
         ImVec4* colors = ImGui::GetStyle().Colors;
 		colors[ImGuiCol_Text]                   = ImVec4(0.89f, 0.83f, 0.674f, 1.0f);
@@ -82,7 +82,9 @@ namespace core {
 		style.TabRounding                       = 2;
     }
 	void load_fonts(ImGuiIO& io) {
-		ImFont * regular = io.Fonts->AddFontFromFileTTF("../style/fonts/Ubuntu-Bold.ttf", 17);
-		ImFont * code = io.Fonts->AddFontFromFileTTF("../style/fonts/SpaceMono-Bold.ttf", 19); 
+		std::string font_dir = "../style/fonts/";
+		regular_font = io.Fonts->AddFontFromFileTTF((font_dir + "Ubuntu-Bold.ttf").c_str(), 17);
+		code_font = io.Fonts->AddFontFromFileTTF((font_dir + "SpaceMono-Bold.ttf").c_str(), 19); 
+		zep_font = io.Fonts->AddFontFromFileTTF((font_dir + "Cousine-Regular.ttf").c_str(), 26);
 	}
 }

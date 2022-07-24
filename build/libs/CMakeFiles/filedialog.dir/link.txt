@@ -1,0 +1,2 @@
+/usr/bin/ar qc libfiledialog.a CMakeFiles/filedialog.dir/nativefiledialog/src/nfd_common.c.o CMakeFiles/filedialog.dir/nativefiledialog/src/nfd_zenity.c.o
+/usr/bin/ranlib libfiledialog.a

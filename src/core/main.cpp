@@ -361,7 +361,7 @@ void core::Update() {
 
 	SimpleOverlay();
 
-	ImGui::PushFont(core::code_font);
+    ImGui::PushFont(core::zep_font);
 
 	if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
 		zep_init(Zep::NVec2f(1.0f, 1.0f));
