@@ -398,7 +398,9 @@ void core::Clear() {
 int main(int argc, char** argv) {
 	glfwSetErrorCallback(glfw_error_callback);
 	
-	core::init();
+	ImVec2 window_size = core::init();
+	// Update canvas
+	set_window_size(window_size);
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	if (core::main_window == NULL) return 1;
 	load_gioengine_projects();

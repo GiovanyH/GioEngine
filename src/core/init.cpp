@@ -2,9 +2,9 @@ namespace core {
     GLFWwindow *main_window;
     std::vector<GLFWwindow*> windows_vec;
 
-    int init() {
+    ImVec2 init() {
         // GLFW
-        if (!glfwInit()) return 1;
+        if (!glfwInit()) return ImVec2(0, 0);
 
         // GL ES 2.0 + GLSL 100
         const char* glsl_version = "#version 100";
@@ -14,7 +14,8 @@ namespace core {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         }
 
-        main_window = glfwCreateWindow(1366, 720, "GioEngine", NULL, NULL);
+        int window_w = 1366; int window_h = 720;
+        main_window = glfwCreateWindow(window_w, window_h, "GioEngine", NULL, NULL);
         glfwMakeContextCurrent(main_window);
         glfwSwapInterval(1); // Enable vsync
 
@@ -25,5 +26,6 @@ namespace core {
         ImGui_ImplGlfw_InitForOpenGL(main_window, true);
         ImGui_ImplOpenGL3_Init(glsl_version);
 
+        return ImVec2(window_w, window_h);
     }
 }
