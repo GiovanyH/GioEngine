@@ -16,18 +16,18 @@ namespace Zep
 // These key defines from usb_hid_keys.h; standard USB keycodes.
 // Defined here to stop collisions.
 
-#define ZEP_KEY_F1 0x3a // Keyboard F1
-#define ZEP_KEY_F2 0x3b // Keyboard F2
-#define ZEP_KEY_F3 0x3c // Keyboard F3
-#define ZEP_KEY_F4 0x3d // Keyboard F4
-#define ZEP_KEY_F5 0x3e // Keyboard F5
-#define ZEP_KEY_F6 0x3f // Keyboard F6
-#define ZEP_KEY_F7 0x40 // Keyboard F7
-#define ZEP_KEY_F8 0x41 // Keyboard F8
-#define ZEP_KEY_F9 0x42 // Keyboard F9
-#define ZEP_KEY_F10 0x43 // Keyboard F10
-#define ZEP_KEY_F11 0x44 // Keyboard F11
-#define ZEP_KEY_F12 0x45 // Keyboard F12
+#define ZEP_KEY_F1 0x122 // Keyboard F1
+#define ZEP_KEY_F2 0x123 // Keyboard F2
+#define ZEP_KEY_F3 0x124 // Keyboard F3
+#define ZEP_KEY_F4 0x125 // Keyboard F4
+#define ZEP_KEY_F5 0x126 // Keyboard F5
+#define ZEP_KEY_F6 0x127 // Keyboard F6
+#define ZEP_KEY_F7 0x128 // Keyboard F7
+#define ZEP_KEY_F8 0x129 // Keyboard F8
+#define ZEP_KEY_F9 0x12A // Keyboard F9
+#define ZEP_KEY_F10 0x12B // Keyboard F10
+#define ZEP_KEY_F11 0x12C // Keyboard F11
+#define ZEP_KEY_F12 0x12D // Keyboard F12
 
 #define ZEP_KEY_1 0x1e // Keyboard 1 and !
 #define ZEP_KEY_2 0x1f // Keyboard 2 and @
