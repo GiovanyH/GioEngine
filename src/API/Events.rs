@@ -1,4 +1,0 @@
-fn main() {
-    Ready();
-    Update();
-}

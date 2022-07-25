@@ -173,6 +173,7 @@ bool show_z = true;
 std::string fileToEdit;
 
 void core::Update() {
+	set_window_size(ImVec2(core::display_w, core::display_h));
 	ImGui::PushFont(core::regular_font);
 
 	bool show_demo_window = false;
@@ -226,8 +227,8 @@ int main(int argc, char** argv) {
 	glfwSetErrorCallback(glfw_error_callback);
 	
 	ImVec2 window_size = core::init();
-	// Update canvas
 	set_window_size(window_size);
+	// Update canvas
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	if (core::main_window == NULL) return 1;
 	load_gioengine_projects();
