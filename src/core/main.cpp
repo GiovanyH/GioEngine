@@ -200,21 +200,15 @@ void core::Update() {
 
 	SimpleOverlay();
 
-	if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
-		std::ofstream user_projects_file;
+	if(filesystem::exists(get_current_project_dir()) && !get_gioengine_directory_exists()) set_gioengine_directory_exists(true);
 
-		std::string ppath = get_current_project_dir() + "/Cargo.toml";
-
-		user_projects_file.open(ppath, std::ios_base::app);
-		user_projects_file << "raylib = \"3.7.0\"" << '\n';
-		user_projects_file.close();
-
+	if(get_gioengine_directory_exists() && show_z && show_text_editor) {
 		zep_init(Zep::NVec2f(1.0f, 1.0f));
 		zep_load(Zep::ZepPath(get_current_project_dir()) / "src" / "main.rs");
 		show_z = false;
 	}
 
-	if(filesystem::exists(get_current_project_dir()) && show_text_editor) {
+	if(get_gioengine_directory_exists() && show_text_editor) {
 		zep_update();
 		static Zep::NVec2i size = Zep::NVec2i(640, 480);
 		zep_show(size);

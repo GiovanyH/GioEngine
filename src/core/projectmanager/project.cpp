@@ -33,6 +33,16 @@ std::string homedir = getenv("USERPROFILE");
 std::string gioengine_directory = homedir + "/.GioEngine";
 std::string current_project_directory;
 
+bool dir_exists = false;
+
+bool get_gioengine_directory_exists() {
+	return dir_exists;
+}
+void set_gioengine_directory_exists(bool value) {
+	update_included();
+	dir_exists = value;
+}
+
 void create_gioengine_directory() {
 	filesystem::create_directory(gioengine_directory);
 }
@@ -80,6 +90,16 @@ void create_gioengine_project(const char *project_name, const char *project_dire
 
 void load_gioengine_project(const char *project_name) {
 	load_gioengine_directory();
+}
+
+void update_included() {
+	std::ofstream user_projects_file;
+
+	std::string ppath = get_current_project_dir() + "/Cargo.toml";
+
+	user_projects_file.open(ppath, std::ios_base::app);
+	user_projects_file << "raylib = \"3.7.0\"" << '\n';
+	user_projects_file.close();
 }
 
 void erase_file_line(std::string path, std::string eraseLine) {
