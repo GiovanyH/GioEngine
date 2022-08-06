@@ -62,12 +62,6 @@
 /home/giovany/Development/GioEngine/build/src/editor/zep/zep/src/CMakeFiles/install.dir
 /home/giovany/Development/GioEngine/build/src/editor/zep/zep/src/CMakeFiles/install/local.dir
 /home/giovany/Development/GioEngine/build/src/editor/zep/zep/src/CMakeFiles/install/strip.dir
-/home/giovany/Development/GioEngine/build/src/API/CMakeFiles/edit_cache.dir
-/home/giovany/Development/GioEngine/build/src/API/CMakeFiles/rebuild_cache.dir
-/home/giovany/Development/GioEngine/build/src/API/CMakeFiles/list_install_components.dir
-/home/giovany/Development/GioEngine/build/src/API/CMakeFiles/install.dir
-/home/giovany/Development/GioEngine/build/src/API/CMakeFiles/install/local.dir
-/home/giovany/Development/GioEngine/build/src/API/CMakeFiles/install/strip.dir
 /home/giovany/Development/GioEngine/build/src/core/CMakeFiles/projectmanager.dir
 /home/giovany/Development/GioEngine/build/src/core/CMakeFiles/edit_cache.dir
 /home/giovany/Development/GioEngine/build/src/core/CMakeFiles/rebuild_cache.dir

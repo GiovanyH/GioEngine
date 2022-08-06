@@ -20,7 +20,6 @@ set(CMAKE_MAKEFILE_DEPENDS
   "../libs/string-view-lite/CMakeLists.txt"
   "../libs/string-view-lite/cmake/string-view-lite-config-version.cmake.in"
   "../libs/string-view-lite/cmake/string-view-lite-config.cmake.in"
-  "../src/API/CMakeLists.txt"
   "../src/CMakeLists.txt"
   "../src/core/CMakeLists.txt"
   "../src/core/config/config.h.in"
@@ -92,7 +91,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "config_app.h"
   "src/editor/zep/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/editor/zep/zep/src/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "src/API/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/core/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 

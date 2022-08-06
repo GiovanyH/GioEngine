@@ -69,9 +69,7 @@ void create_gioengine_project(const char *project_name, const char *project_dire
 
 	std::ofstream user_projects_file;
 	user_projects_file.open(file_path.c_str(), std::ios_base::app);
-
 	user_projects_file << project_name << '#' << project_directory << '\n';
-
 	user_projects_file.close();
 
 	std::string project_path = std::string(project_directory);

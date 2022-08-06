@@ -201,6 +201,14 @@ void core::Update() {
 	SimpleOverlay();
 
 	if(filesystem::exists(get_current_project_dir()) && show_z && show_text_editor) {
+		std::ofstream user_projects_file;
+
+		std::string ppath = get_current_project_dir() + "/Cargo.toml";
+
+		user_projects_file.open(ppath, std::ios_base::app);
+		user_projects_file << "raylib = \"3.7.0\"" << '\n';
+		user_projects_file.close();
+
 		zep_init(Zep::NVec2f(1.0f, 1.0f));
 		zep_load(Zep::ZepPath(get_current_project_dir()) / "src" / "main.rs");
 		show_z = false;
