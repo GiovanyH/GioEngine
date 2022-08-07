@@ -61,6 +61,7 @@ struct ExampleAppConsole
         Commands.push_back("HISTORY");
         Commands.push_back("CLEAR");
         Commands.push_back("CLASSIFY");
+        Commands.push_back("Build");
         AutoScroll = true;
         ScrollToBottom = false;
         AddLog("Welcome to Dear ImGui!");
@@ -123,6 +124,7 @@ struct ExampleAppConsole
 
         // TODO: display items starting from the bottom
 
+        if (ImGui::SmallButton("Build Game")) {ExecCommand("Build");}
         if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", Items.Size); AddLog("some more text"); AddLog("display very important message here!"); }
         ImGui::SameLine();
         if (ImGui::SmallButton("Add Debug Error")) { AddLog("[error] something went wrong"); }
@@ -156,31 +158,6 @@ struct ExampleAppConsole
             if (ImGui::Selectable("Clear")) ClearLog();
             ImGui::EndPopup();
         }
-
-        // Display every line as a separate entry so we can change their color or add custom widgets.
-        // If you only want raw text you can use ImGui::TextUnformatted(log.begin(), log.end());
-        // NB- if you have thousands of entries this approach may be too inefficient and may require user-side clipping
-        // to only process visible items. The clipper will automatically measure the height of your first item and then
-        // "seek" to display only items in the visible area.
-        // To use the clipper we can replace your standard loop:
-        //      for (int i = 0; i < Items.Size; i++)
-        //   With:
-        //      ImGuiListClipper clipper;
-        //      clipper.Begin(Items.Size);
-        //      while (clipper.Step())
-        //         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-        // - That your items are evenly spaced (same height)
-        // - That you have cheap random access to your elements (you can access them given their index,
-        //   without processing all the ones before)
-        // You cannot this code as-is if a filter is active because it breaks the 'cheap random-access' property.
-        // We would need random-access on the post-filtered list.
-        // A typical application wanting coarse clipping and filtering may want to pre-compute an array of indices
-        // or offsets of items that passed the filtering test, recomputing this array when user changes the filter,
-        // and appending newly elements as they are inserted. This is left as a task to the user until we can manage
-        // to improve this example code!
-        // If your items are of variable height:
-        // - Split them into same height items would be simpler and facilitate random-seeking into your list.
-        // - Consider using manual call to IsRectVisible() and skipping extraneous decoration from your items.
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
         if (copy_to_clipboard)
             ImGui::LogToClipboard();
@@ -190,8 +167,6 @@ struct ExampleAppConsole
             if (!Filter.PassFilter(item))
                 continue;
 
-            // Normally you would store more information in your item than just a string.
-            // (e.g. make Items[] an array of structure, store color/type etc.)
             ImVec4 color;
             bool has_color = false;
             if (strstr(item, "[error]"))          { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); has_color = true; }
@@ -266,6 +241,10 @@ struct ExampleAppConsole
             int first = History.Size - 10;
             for (int i = first > 0 ? first : 0; i < History.Size; i++)
                 AddLog("%3d: %s\n", i, History[i]);
+        }
+        else if (Stricmp(command_line, "Build") == 0)
+        {
+            system((std::string("cargo run ") + get_current_project_dir()).c_str());
         }
         else
         {

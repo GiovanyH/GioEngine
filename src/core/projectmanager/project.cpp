@@ -85,8 +85,6 @@ std::string create_gioengine_project(const char *project_name, const char *proje
 	std::string project_path = std::string(project_directory);
 	filesystem::create_directories(project_path);
 
-	system((std::string("cargo new ") + project_path + '/' + project_name).c_str());
-
 	return "Creating Cargo Project...";
 }
 
