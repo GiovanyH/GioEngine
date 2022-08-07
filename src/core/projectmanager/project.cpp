@@ -74,7 +74,7 @@ void show_gioengine_projects() {
 	for(auto Project : UserProjects) std::cout << Project << std::endl;
 }
 
-void create_gioengine_project(const char *project_name, const char *project_directory) {
+std::string create_gioengine_project(const char *project_name, const char *project_directory) {
 	std::string file_path = gioengine_directory + std::string("/user_projects.gio");
 
 	std::ofstream user_projects_file;
@@ -86,6 +86,8 @@ void create_gioengine_project(const char *project_name, const char *project_dire
 	filesystem::create_directories(project_path);
 
 	system((std::string("cargo new ") + project_path + '/' + project_name).c_str());
+
+	return "Creating Cargo Project...";
 }
 
 void load_gioengine_project(const char *project_name) {

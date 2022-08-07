@@ -8,7 +8,7 @@ void load_gioengine_directory();
 void load_gioengine_projects();
 void reload_gioengine_projects();
 void show_gioengine_projects();
-void create_gioengine_project(const char *project_name, const char *project_directory);
+std::string create_gioengine_project(const char *project_name, const char *project_directory);
 void load_gioengine_project(const char *project_name);
 void update_included();
 void delete_gioengine_project(std::string project_name);
