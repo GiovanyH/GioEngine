@@ -35,20 +35,24 @@ std::string current_project_directory;
 
 bool dir_exists = false;
 
-bool get_gioengine_directory_exists() {
+bool get_gioengine_directory_exists()
+{
 	return dir_exists;
 }
-void set_gioengine_directory_exists(bool value) {
+void set_gioengine_directory_exists(bool value)
+{
 	update_included();
 	dir_exists = value;
 }
 
-void create_gioengine_directory() {
+void create_gioengine_directory()
+{
 	filesystem::create_directory(gioengine_directory);
 }
 
 void load_gioengine_directory() {
-	if(!filesystem::exists(gioengine_directory)) create_gioengine_directory();
+	if (!filesystem::exists(gioengine_directory))
+		create_gioengine_directory();
 }
 
 void load_gioengine_projects() {
@@ -59,8 +63,9 @@ void load_gioengine_projects() {
 	std::ifstream user_projects_file(file_path.c_str());
 
 	std::string str;
-	while(std::getline(user_projects_file, str)) {
-		if(str.size() > 0) UserProjects.push_back(str);
+	while (std::getline(user_projects_file, str)) {
+		if (str.size() > 0)
+			UserProjects.push_back(str);
 	}
 	user_projects_file.close();
 }
@@ -71,7 +76,8 @@ void reload_gioengine_projects() {
 }
 
 void show_gioengine_projects() {
-	for(auto Project : UserProjects) std::cout << Project << std::endl;
+	for (auto Project : UserProjects)
+		std::cout << Project << std::endl;
 }
 
 std::string create_gioengine_project(const char *project_name, const char *project_directory) {
@@ -88,11 +94,13 @@ std::string create_gioengine_project(const char *project_name, const char *proje
 	return "Creating Cargo Project...";
 }
 
-void load_gioengine_project(const char *project_name) {
+void load_gioengine_project(const char *project_name)
+{
 	load_gioengine_directory();
 }
 
-void update_included() {
+void update_included()
+{
 	std::ofstream user_projects_file;
 
 	std::string ppath = get_current_project_dir() + "/Cargo.toml";
@@ -102,44 +110,50 @@ void update_included() {
 	user_projects_file.close();
 }
 
-void erase_file_line(std::string path, std::string eraseLine) {
-    std::string line;
-    std::ifstream fin;
-    
-    fin.open(path);
-    // contents of path must be copied to a temp file then
-    // renamed back to the path file
-    std::ofstream temp;
-    temp.open("temp.txt");
+void erase_file_line(std::string path, std::string eraseLine)
+{
+	std::string line;
+	std::ifstream fin;
 
-    while (getline(fin, line)) {
-        // write all lines to temp other than the line marked for erasing
-        if (line != eraseLine)
-            temp << line << std::endl;
-    }
+	fin.open(path);
+	// contents of path must be copied to a temp file then
+	// renamed back to the path file
+	std::ofstream temp;
+	temp.open("temp.txt");
 
-    temp.close();
-    fin.close();
+	while (getline(fin, line))
+	{
+		// write all lines to temp other than the line marked for erasing
+		if (line != eraseLine)
+			temp << line << std::endl;
+	}
 
-    // required conversion for remove and rename functions
-    const char * p = path.c_str();
-    remove(p);
-    rename("temp.txt", p);
-} 
+	temp.close();
+	fin.close();
 
-void delete_gioengine_project(std::string project_name) {
-	std::string file_path = gioengine_directory + std::string("/user_projects.gio");
-	erase_file_line(file_path, project_name); 
+	// required conversion for remove and rename functions
+	const char *p = path.c_str();
+	remove(p);
+	rename("temp.txt", p);
 }
 
-std::vector<std::string> get_user_projects() {
+void delete_gioengine_project(std::string project_name)
+{
+	std::string file_path = gioengine_directory + std::string("/user_projects.gio");
+	erase_file_line(file_path, project_name);
+}
+
+std::vector<std::string> get_user_projects()
+{
 	return UserProjects;
 }
 
-std::string get_current_project_dir() {
+std::string get_current_project_dir()
+{
 	return current_project_directory;
 }
 
-void set_current_project_dir(std::string dir) {
+void set_current_project_dir(std::string dir)
+{
 	current_project_directory = dir;
 }

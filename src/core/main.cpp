@@ -440,21 +440,21 @@ static void ShowProjectManager(bool* p_open) {
     if (CanvasBegin("ProjectTree", p_open, flags)) {
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-		if (ImGui::MenuItem("Create")) show_project_creation_window_fn();
-		if (ImGui::MenuItem("Reload")) reload_gioengine_projects();
+                if (ImGui::MenuItem("Create")) show_project_creation_window_fn();
+                if (ImGui::MenuItem("Reload")) reload_gioengine_projects();
                 if (ImGui::MenuItem("Close")) *p_open = false;
-                ImGui::EndMenu();
+                    ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
         }
 	
-	std::vector<std::string> Project;
+        std::vector<std::string> Project;
 
         static int selected = 0;
         {
             ImGui::BeginChild("left pane", ImVec2(150, 0), true);
             for (int i = 0; i < get_user_projects().size(); i++) {
-		Project = get_project(get_user_projects()[i]);
+                Project = get_project(get_user_projects()[i]);
                 char label[128];
                 sprintf(label, Project[0].c_str());
                 if (ImGui::Selectable(label, selected == i))
@@ -464,36 +464,37 @@ static void ShowProjectManager(bool* p_open) {
         }
         ImGui::SameLine(); 
 
-	ImGui::BeginGroup();
-	ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-	ImGui::Separator();
-	if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None)) {
-		if (ImGui::BeginTabItem("Directory")) {
-			if (get_user_projects().size() != 0) {
-				Project = get_project(get_user_projects()[selected]);
-				std::string text = Project[1];
-				ImGui::TextWrapped(text.c_str());
-			}
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Details")) {
-		    ImGui::Text("ID: 0123456789");
-		    ImGui::EndTabItem();
-		}
-		ImGui::EndTabBar();
-	}
-	ImGui::EndChild();
-	if (ImGui::Button("Open")) {
-		set_current_project_dir(Project[1] + '/' + Project[0]);
-		init_engine_windows();
-		*p_open = false;
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Delete")) {
-		delete_gioengine_project(get_user_projects()[selected]);
-		reload_gioengine_projects();
-	}
-	ImGui::EndGroup();
+        ImGui::BeginGroup();
+        ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+        ImGui::Separator();
+        if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None)) {
+            if (ImGui::BeginTabItem("Directory")) {
+                if (get_user_projects().size() != 0) {
+                    Project = get_project(get_user_projects()[selected]);
+                    std::string text = Project[1];
+                    ImGui::TextWrapped(text.c_str());
+                }
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Details")) {
+                ImGui::Text("ID: 0123456789");
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        ImGui::EndChild();
+        if (ImGui::Button("Open")) {
+            set_current_project_dir(Project[1] + '/' + Project[0]);
+            init_engine_windows();
+            *p_open = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Delete")) {
+            delete_gioengine_project(get_user_projects()[selected]);
+            reload_gioengine_projects();
+            selected = 0;
+        }
+        ImGui::EndGroup();
     }
     ImGui::End();
 }
