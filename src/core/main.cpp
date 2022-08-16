@@ -49,10 +49,18 @@ struct ExampleAppConsole {
         ClearLog();
         memset(InputBuf, 0, sizeof(InputBuf));
 
+<<<<<<< HEAD
         Commands.push_back("CLEAR");
         Commands.push_back("Build");
         ScrollToBottom = true;
         AddLog("Welcome to Dear ImGui!");
+=======
+        // "CLASSIFY" is here to provide the test case where "C"+[tab] completes to "CL" and display multiple matches.
+        Commands.push_back("CLEAR");
+        Commands.push_back("Build");
+        AutoScroll = true;
+        ScrollToBottom = false;
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
     }
     ~ExampleAppConsole() {
         ClearLog();
@@ -83,24 +91,42 @@ struct ExampleAppConsole {
 
     void    Draw(const char* title, bool* p_open) {
         ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
+<<<<<<< HEAD
         if (!ImGui::Begin(title, p_open)) {
+=======
+        if (!CanvasBegin(title, p_open))
+        {
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
             ImGui::End();
             return;
         }
 
+<<<<<<< HEAD
         if (ImGui::BeginPopupContextItem()) {
+=======
+        if (ImGui::BeginPopupContextItem())
+        {
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
             if (ImGui::MenuItem("Close Console"))
                 *p_open = false;
             ImGui::EndPopup();
         }
 
+<<<<<<< HEAD
         if (ImGui::SmallButton("Build Game")) {ExecCommand("Build");}
+=======
+        // TODO: display items starting from the bottom
+
+        if (ImGui::SmallButton("Build Game")) {ExecCommand("Build");}
+        ImGui::SameLine();
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
         if (ImGui::SmallButton("Clear"))           { ClearLog(); }
         ImGui::SameLine();
         bool copy_to_clipboard = ImGui::SmallButton("Copy");
 
         ImGui::Separator();
 
+<<<<<<< HEAD
         if (ImGui::BeginPopup("Options")) {
             ImGui::Checkbox("Auto-scroll", &AutoScroll);
             ImGui::EndPopup();
@@ -109,6 +135,8 @@ struct ExampleAppConsole {
         if (ImGui::Button("Options")) ImGui::OpenPopup("Options");
         ImGui::Separator();
 
+=======
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
         if (ImGui::BeginPopupContextWindow()) {
@@ -158,7 +186,23 @@ struct ExampleAppConsole {
     void    ExecCommand(const char* command_line) {
         AddLog("# %s\n", command_line);
 
+<<<<<<< HEAD
         if (Stricmp(command_line, "CLEAR") == 0) {
+=======
+        HistoryPos = -1;
+        for (int i = History.Size - 1; i >= 0; i--)
+            if (Stricmp(History[i], command_line) == 0)
+            {
+                free(History[i]);
+                History.erase(History.begin() + i);
+                break;
+            }
+        History.push_back(Strdup(command_line));
+
+        // Process command
+        if (Stricmp(command_line, "CLEAR") == 0)
+        {
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
             ClearLog();
         }
         else if (Stricmp(command_line, "Build") == 0) {
@@ -171,7 +215,12 @@ struct ExampleAppConsole {
         ScrollToBottom = true;
     }
 
+<<<<<<< HEAD
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* data) {
+=======
+    static int TextEditCallbackStub(ImGuiInputTextCallbackData* data)
+    {
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
         ExampleAppConsole* console = (ExampleAppConsole*)data->UserData;
         return console->TextEditCallback(data);
     }
@@ -205,7 +254,12 @@ struct ExampleAppConsole {
                     data->InsertChars(data->CursorPos, candidates[0]);
                     data->InsertChars(data->CursorPos, " ");
                 }
+<<<<<<< HEAD
                 else {
+=======
+                else
+                {
+>>>>>>> 9dbc90e89c6e7444f1e2ebcee2acd2009e8845d8
                     int match_len = (int)(word_end - word_start);
                     for (;;) {
                         int c = 0;
