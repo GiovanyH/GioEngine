@@ -57,14 +57,10 @@ struct ExampleAppConsole
         HistoryPos = -1;
 
         // "CLASSIFY" is here to provide the test case where "C"+[tab] completes to "CL" and display multiple matches.
-        Commands.push_back("HELP");
-        Commands.push_back("HISTORY");
         Commands.push_back("CLEAR");
-        Commands.push_back("CLASSIFY");
         Commands.push_back("Build");
         AutoScroll = true;
         ScrollToBottom = false;
-        AddLog("Welcome to Dear ImGui!");
     }
     ~ExampleAppConsole()
     {
@@ -101,15 +97,12 @@ struct ExampleAppConsole
     void    Draw(const char* title, bool* p_open)
     {
         ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin(title, p_open))
+        if (!CanvasBegin(title, p_open))
         {
             ImGui::End();
             return;
         }
 
-        // As a specific feature guaranteed by the library, after calling Begin() the last Item represent the title bar.
-        // So e.g. IsItemHovered() will return true when hovering the title bar.
-        // Here we create a context menu only available from the title bar.
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Close Console"))
@@ -117,17 +110,9 @@ struct ExampleAppConsole
             ImGui::EndPopup();
         }
 
-        ImGui::TextWrapped(
-            "This example implements a console with basic coloring, completion (TAB key) and history (Up/Down keys). A more elaborate "
-            "implementation may want to store entries along with extra data such as timestamp, emitter, etc.");
-        ImGui::TextWrapped("Enter 'HELP' for help.");
-
         // TODO: display items starting from the bottom
 
         if (ImGui::SmallButton("Build Game")) {ExecCommand("Build");}
-        if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", Items.Size); AddLog("some more text"); AddLog("display very important message here!"); }
-        ImGui::SameLine();
-        if (ImGui::SmallButton("Add Debug Error")) { AddLog("[error] something went wrong"); }
         ImGui::SameLine();
         if (ImGui::SmallButton("Clear"))           { ClearLog(); }
         ImGui::SameLine();
@@ -136,21 +121,6 @@ struct ExampleAppConsole
 
         ImGui::Separator();
 
-        // Options menu
-        if (ImGui::BeginPopup("Options"))
-        {
-            ImGui::Checkbox("Auto-scroll", &AutoScroll);
-            ImGui::EndPopup();
-        }
-
-        // Options, Filter
-        if (ImGui::Button("Options"))
-            ImGui::OpenPopup("Options");
-        ImGui::SameLine();
-        Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
-        ImGui::Separator();
-
-        // Reserve enough left-over height for 1 separator + 1 input text
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
         if (ImGui::BeginPopupContextWindow())
@@ -213,8 +183,6 @@ struct ExampleAppConsole
     {
         AddLog("# %s\n", command_line);
 
-        // Insert into history. First find match and delete it so it can be pushed to the back.
-        // This isn't trying to be smart or optimal.
         HistoryPos = -1;
         for (int i = History.Size - 1; i >= 0; i--)
             if (Stricmp(History[i], command_line) == 0)
@@ -251,11 +219,9 @@ struct ExampleAppConsole
             AddLog("Unknown command: '%s'\n", command_line);
         }
 
-        // On command input, we scroll to bottom even if AutoScroll==false
         ScrollToBottom = true;
     }
 
-    // In C++11 you'd be better off using lambdas for this sort of forwarding callbacks
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* data)
     {
         ExampleAppConsole* console = (ExampleAppConsole*)data->UserData;
@@ -302,8 +268,6 @@ struct ExampleAppConsole
                 }
                 else
                 {
-                    // Multiple matches. Complete as much as we can..
-                    // So inputing "C"+Tab will complete to "CL" then display "CLEAR" and "CLASSIFY" as matches.
                     int match_len = (int)(word_end - word_start);
                     for (;;)
                     {
