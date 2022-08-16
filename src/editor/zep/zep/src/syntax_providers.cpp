@@ -149,6 +149,10 @@ static std::unordered_set<std::string> markdown_identifiers = {};
 
 void RegisterSyntaxProviders(ZepEditor& editor)
 {
+    editor.RegisterSyntaxFactory({ ".rs" }, SyntaxProvider{ "cpp", tSyntaxFactory([](ZepBuffer* pBuffer) {
+                                                                          return std::make_shared<ZepSyntax>(*pBuffer, cpp_keywords, cpp_identifiers);
+                                                                      }) });
+
     editor.RegisterSyntaxFactory({ ".scenegraph" }, SyntaxProvider{ "scenegraph", tSyntaxFactory([](ZepBuffer* pBuffer) {
                                                                           return std::make_shared<ZepSyntax>(*pBuffer, scenegraph_keywords, scenegraph_identifiers);
                                                                       }) });
